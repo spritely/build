@@ -1,0 +1,81 @@
+name: Build and publish dotnet package
+description: Runs build, tests, and publishing of a dotnet package to the package registry, including applying a semantic version.
+
+inputs:
+  packageRepository:
+    description: The URL of the NuGet package repository to push to.
+    required: false
+    default: https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
+  nugetAuthToken:
+    description: The NuGet authentication token to use when pushing or pulling packages.
+    required: true
+  projectFile:
+    description: The project file to package such as MyProject.csproj. Do not include the path here.
+    required: true
+  registryUsername:
+    description: The username to use to authenticate with the container registry.
+    required: true
+  registryPassword:
+    description: The token to use to authenticate with the container registry.
+    required: true
+  projectDirectory:
+    description: The directory containing the project to be packaged. Defaults to ./
+    required: false
+    default: ./
+  workingDirectory:
+    description: The directory to run the git commands in. Defaults to ./src/
+    required: false
+    default: ./src/
+  unitTestProjects:
+    # It is important to only pass 'Unit' test projects since the build won't be deployed yet and thus these tests cannot depend on anything in the environment to run
+    description: The path to all unit tests projects to run. Defaults to **/*.UnitTests.csproj
+    required: false
+    default: "**/*.UnitTests.csproj"
+  coverageThreshold:
+    description: The minimum code coverage percentage required for the build to pass. Defaults to 90
+    required: false
+    default: "90"
+  registryHost:
+    description: The host of the container registry to push to. Defaults to ghcr.io
+    required: false
+    default: ghcr.io
+
+runs:
+  using: composite
+  steps:
+    - id: version
+      name: Get semantic version
+      uses: ./build/steps/get-semantic-version
+      with:
+        workingDirectory: ${{ inputs.workingDirectory }}
+
+    - name: Unit test with code coverage
+      uses: ./build/steps/dotnet-test-cover
+      with:
+        nugetAuthToken: ${{ inputs.nugetAuthToken }}
+        coverageThreshold: ${{ inputs.coverageThreshold }}
+        unitTestProjects: ${{ inputs.unitTestProjects }}
+        workingDirectory: ${{ inputs.workingDirectory }}
+        registryUsername: ${{ inputs.registryUsername }}
+        registryPassword: ${{ inputs.registryPassword }}
+        registryHost: ${{ inputs.registryHost }}
+
+    - name: Build and publish nuget package
+      uses: ./build/steps/nuget-package-build
+      with:
+        packageRepository: ${{ inputs.packageRepository }}
+        nugetAuthToken: ${{ inputs.nugetAuthToken }}
+        projectFile: ${{ inputs.projectFile }}
+        projectDirectory: ${{ inputs.projectDirectory }}
+        workingDirectory: ${{ inputs.workingDirectory }}
+        version: ${{ steps.version.outputs.version }}
+        registryUsername: ${{ inputs.registryUsername }}
+        registryPassword: ${{ inputs.registryPassword }}
+        registryHost: ${{ inputs.registryHost }}
+
+    - name: Apply semantic version
+      if: ${{ steps.version.outputs.branchName == github.event.repository.default_branch }}
+      uses: ./build/steps/apply-semantic-version
+      with:
+        version: ${{ steps.version.outputs.version }}
+        workingDirectory: ${{ inputs.workingDirectory }}

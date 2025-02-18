@@ -1,0 +1,82 @@
+name: Build and publish dotnet container
+description: Runs build, tests, and publishing of a dotnet container image to the container registry, including applying a semantic version.
+
+inputs:
+  nugetAuthToken:
+    description: The NuGet authentication token to use when pushing or pulling packages.
+    required: true
+  registryUsername:
+    description: The username to use to authenticate with the container registry.
+    required: true
+  registryPassword:
+    description: The token to use to authenticate with the container registry.
+    required: true
+  imageNames:
+    description: The names of the images to tag and publish.
+    required: true
+  context:
+    description: The context to use when building. Defaults to ./src/
+    required: false
+    default: ./src/
+  dockerfile:
+    description: The dockerfile to build. Defaults to ./src/Dockerfile
+    required: false
+    default: ./src/Dockerfile
+  registryHost:
+    description: The host of the container registry to push to. Defaults to ghcr.io
+    required: false
+    default: ghcr.io
+  workingDirectory:
+    description: The directory to run the git commands in. Defaults to ./src/
+    required: false
+    default: ./src/
+  unitTestProjects:
+    # It is important to only pass 'Unit' test projects since the build won't be deployed yet and thus these tests cannot depend on anything in the environment to run
+    description: The path to all unit tests projects to run. Defaults to **/*.UnitTests.csproj
+    required: false
+    default: "**/*.UnitTests.csproj"
+  coverageThreshold:
+    description: The minimum code coverage percentage required for the build to pass. Defaults to 90
+    required: false
+    default: "90"
+
+runs:
+  using: composite
+  steps:
+    - id: version
+      name: Get semantic version
+      uses: ./build/steps/get-semantic-version
+      with:
+        workingDirectory: ${{ inputs.workingDirectory }}
+
+    - name: Unit test with code coverage
+      uses: ./build/steps/dotnet-test-cover
+      with:
+        nugetAuthToken: ${{ inputs.nugetAuthToken }}
+        registryUsername: ${{ inputs.registryUsername }}
+        registryPassword: ${{ inputs.registryPassword }}
+        registryHost: ${{ inputs.registryHost }}
+        coverageThreshold: ${{ inputs.coverageThreshold }}
+        unitTestProjects: ${{ inputs.unitTestProjects }}
+        workingDirectory: ${{ inputs.workingDirectory }}
+
+    - name: Build and publish container
+      uses: ./build/steps/container-build
+      with:
+        registryUsername: ${{ inputs.registryUsername }}
+        registryPassword: ${{ inputs.registryPassword }}
+        registryHost: ${{ inputs.registryHost }}
+        containerSecrets: |
+          NUGET_USER=${{ github.actor }}
+          NUGET_TOKEN=${{ inputs.nugetAuthToken }}
+        context: ${{ inputs.context }}
+        dockerfile: ${{ inputs.dockerfile }}
+        imageNames: ${{ inputs.imageNames }}
+        version: ${{ steps.version.outputs.version }}
+
+    - name: Apply semantic version
+      if: ${{ steps.version.outputs.branchName == github.event.repository.default_branch }}
+      uses: ./build/steps/apply-semantic-version
+      with:
+        version: ${{ steps.version.outputs.version }}
+        workingDirectory: ${{ inputs.workingDirectory }}
