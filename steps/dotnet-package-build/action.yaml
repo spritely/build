@@ -39,18 +39,22 @@ inputs:
     description: The host of the container registry to push to. Defaults to ghcr.io
     required: false
     default: ghcr.io
+  buildVersion:
+    description: The version reference to use when calling nested actions. Defaults to master
+    required: false
+    default: master
 
 runs:
   using: composite
   steps:
     - id: version
       name: Get semantic version
-      uses: ./build/steps/get-semantic-version
+      uses: spritely/build/steps/get-semantic-version@${{ inputs.buildVersion }}
       with:
         workingDirectory: ${{ inputs.workingDirectory }}
 
     - name: Unit test with code coverage
-      uses: ./build/steps/dotnet-test-cover
+      uses: spritely/build/steps/dotnet-test-cover
       with:
         nugetAuthToken: ${{ inputs.nugetAuthToken }}
         coverageThreshold: ${{ inputs.coverageThreshold }}
@@ -61,7 +65,7 @@ runs:
         registryHost: ${{ inputs.registryHost }}
 
     - name: Build and publish nuget package
-      uses: ./build/steps/nuget-package-build
+      uses: spritely/build/steps/nuget-package-build@${{ inputs.buildVersion }}
       with:
         packageRepository: ${{ inputs.packageRepository }}
         nugetAuthToken: ${{ inputs.nugetAuthToken }}
@@ -75,7 +79,7 @@ runs:
 
     - name: Apply semantic version
       if: ${{ steps.version.outputs.branchName == github.event.repository.default_branch }}
-      uses: ./build/steps/apply-semantic-version
+      uses: spritely/build/steps/apply-semantic-version@${{ inputs.buildVersion }}
       with:
         version: ${{ steps.version.outputs.version }}
         workingDirectory: ${{ inputs.workingDirectory }}
