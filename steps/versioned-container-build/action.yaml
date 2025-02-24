@@ -37,12 +37,12 @@ runs:
   steps:
     - id: version
       name: Get semantic version
-      uses: spritely/build/steps/get-semantic-version@${{ inputs.buildVersion }}
+      uses: spritely/build/steps/get-semantic-version@improve-reuse
       with:
         workingDirectory: ${{ inputs.workingDirectory }}
 
     - name: Build and publish container
-      uses: spritely/build/steps/container-build@${{ inputs.buildVersion }}
+      uses: spritely/build/steps/container-build@improve-reuse
       with:
         registryUsername: ${{ inputs.registryUsername }}
         registryPassword: ${{ inputs.registryPassword }}
@@ -54,7 +54,7 @@ runs:
 
     - name: Apply semantic version
       if: ${{ steps.version.outputs.branchName == github.event.repository.default_branch }}
-      uses: spritely/build/steps/apply-semantic-version@${{ inputs.buildVersion }}
+      uses: spritely/build/steps/apply-semantic-version@improve-reuse
       with:
         version: ${{ steps.version.outputs.version }}
         workingDirectory: ${{ inputs.workingDirectory }}
