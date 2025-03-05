@@ -50,7 +50,7 @@ runs:
         workingDirectory: ${{ inputs.workingDirectory }}
 
     - name: Unit test with code coverage
-      uses: spritely/build/steps/dotnet-test-cover
+      uses: spritely/build/steps/dotnet-test-cover@improve-reuse
       with:
         nugetAuthToken: ${{ inputs.nugetAuthToken }}
         coverageThreshold: ${{ inputs.coverageThreshold }}
