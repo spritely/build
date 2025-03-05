@@ -39,17 +39,13 @@ inputs:
     description: The host of the container registry to push to. Defaults to ghcr.io
     required: false
     default: ghcr.io
-  buildVersion:
-    description: The version reference to use when calling nested actions. Defaults to master
-    required: false
-    default: master
 
 runs:
   using: composite
   steps:
     - id: version
       name: Get semantic version
-      uses: spritely/build/steps/get-semantic-version@${{ inputs.buildVersion }}
+      uses: spritely/actions.semantic-version/get@v0.2.0
       with:
         workingDirectory: ${{ inputs.workingDirectory }}
 
@@ -65,7 +61,7 @@ runs:
         registryHost: ${{ inputs.registryHost }}
 
     - name: Build and publish nuget package
-      uses: spritely/build/steps/nuget-package-build@${{ inputs.buildVersion }}
+      uses: spritely/build/steps/nuget-package-build@improve-reuse
       with:
         packageRepository: ${{ inputs.packageRepository }}
         nugetAuthToken: ${{ inputs.nugetAuthToken }}
@@ -79,7 +75,7 @@ runs:
 
     - name: Apply semantic version
       if: ${{ steps.version.outputs.branchName == github.event.repository.default_branch }}
-      uses: spritely/build/steps/apply-semantic-version@${{ inputs.buildVersion }}
+      uses: spritely/actions.semantic-version/apply@v0.2.0
       with:
         version: ${{ steps.version.outputs.version }}
         workingDirectory: ${{ inputs.workingDirectory }}

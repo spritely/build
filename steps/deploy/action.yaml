@@ -57,17 +57,13 @@ inputs:
     description: The version of pulumi to use.
     required: false
     default: 3.142.0
-  buildVersion:
-    description: The version reference to use when calling nested actions. Defaults to master
-    required: false
-    default: master
 
 runs:
   using: composite
   steps:
     - id: version
       name: Get semantic version
-      uses: spritely/build/steps/get-semantic-version@${{ inputs.buildVersion }}
+      uses: spritely/actions.semantic-version/get@v0.2.0
       with:
         workingDirectory: ${{ inputs.workingDirectory }}
 

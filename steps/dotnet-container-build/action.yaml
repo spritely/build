@@ -39,22 +39,18 @@ inputs:
     description: The minimum code coverage percentage required for the build to pass. Defaults to 90
     required: false
     default: "90"
-  buildVersion:
-    description: The version reference to use when calling nested actions. Defaults to master
-    required: false
-    default: master
 
 runs:
   using: composite
   steps:
     - id: version
       name: Get semantic version
-      uses: spritely/build/steps/get-semantic-version@${{ inputs.buildVersion }}
+      uses: spritely/actions.semantic-version/get@v0.2.0
       with:
         workingDirectory: ${{ inputs.workingDirectory }}
 
     - name: Unit test with code coverage
-      uses: spritely/build/steps/dotnet-test-cover@${{ inputs.buildVersion }}
+      uses: spritely/build/steps/dotnet-test-cover@improve-reuse
       with:
         nugetAuthToken: ${{ inputs.nugetAuthToken }}
         registryUsername: ${{ inputs.registryUsername }}
@@ -65,7 +61,7 @@ runs:
         workingDirectory: ${{ inputs.workingDirectory }}
 
     - name: Build and publish container
-      uses: spritely/build/steps/container-build@${{ inputs.buildVersion }}
+      uses: spritely/build/steps/container-build@improve-reuse
       with:
         registryUsername: ${{ inputs.registryUsername }}
         registryPassword: ${{ inputs.registryPassword }}
@@ -80,7 +76,7 @@ runs:
 
     - name: Apply semantic version
       if: ${{ steps.version.outputs.branchName == github.event.repository.default_branch }}
-      uses: spritely/build/steps/apply-semantic-version@${{ inputs.buildVersion }}
+      uses: spritely/actions.semantic-version/apply@v0.2.0
       with:
         version: ${{ steps.version.outputs.version }}
         workingDirectory: ${{ inputs.workingDirectory }}

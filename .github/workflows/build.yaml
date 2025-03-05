@@ -2,9 +2,6 @@ name: Build
 
 on: [push, workflow_dispatch]
 
-env:
-  MAIN_BRANCH: master
-
 permissions:
   contents: write # To be able to apply semantic version tags to the repository
 
@@ -13,19 +10,12 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
       - id: version
         name: Get semantic version
-        uses: ./steps/get-semantic-version
-        with:
-          mainBranch: ${{ env.MAIN_BRANCH }}
+        uses: spritely/actions.semantic-version/get@v0.2.0
 
       - name: Apply semantic version
-        if: ${{ steps.version.outputs.branchName == env.MAIN_BRANCH }}
-        uses: ./steps/apply-semantic-version
+        if: ${{ steps.version.outputs.branchName == github.event.repository.default_branch }}
+        uses: spritely/actions.semantic-version/apply@v0.2.0
         with:
           version: ${{ steps.version.outputs.version }}

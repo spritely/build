@@ -27,17 +27,13 @@ inputs:
     description: The directory to run the git commands in. Defaults to ./src/
     required: false
     default: ./src/
-  buildVersion:
-    description: The version reference to use when calling nested actions. Defaults to master
-    required: false
-    default: master
 
 runs:
   using: composite
   steps:
     - id: version
       name: Get semantic version
-      uses: spritely/build/steps/get-semantic-version@improve-reuse
+      uses: spritely/actions.semantic-version/get@v0.2.0
       with:
         workingDirectory: ${{ inputs.workingDirectory }}
 
@@ -54,7 +50,7 @@ runs:
 
     - name: Apply semantic version
       if: ${{ steps.version.outputs.branchName == github.event.repository.default_branch }}
-      uses: spritely/build/steps/apply-semantic-version@improve-reuse
+      uses: spritely/actions.semantic-version/apply@v0.2.0
       with:
         version: ${{ steps.version.outputs.version }}
         workingDirectory: ${{ inputs.workingDirectory }}
