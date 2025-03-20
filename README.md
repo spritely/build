@@ -37,26 +37,15 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-      - name: Pull build
-        uses: actions/checkout@v4
-        with:
-          repository: spritely/build
-          path: ./build
-          ref: ${{ env.BUILD_VERSION_TAG }}
-          token: ${{ secrets.BUILD_REPO_READ_TOKEN }}
-
       - id: version
         name: Get semantic version
-        uses: ./build/steps/get-semantic-version
-        with:
-          workingDirectory: ./src/
+        uses: spritely/actions.semantic-version/get@v0.2.2
 
       - name: Apply semantic version
         if: ${{ steps.version.outputs.branchName == github.event.repository.default_branch }}
-        uses: ./build/steps/apply-semantic-version
+        uses: spritely/actions.semantic-version/apply@v0.2.2
         with:
           version: ${{ steps.version.outputs.version }}
-          workingDirectory: ./src/
 ```
 
 ### Build and Publish Container
