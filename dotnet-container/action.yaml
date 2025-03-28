@@ -61,7 +61,7 @@ runs:
         workingDirectory: ${{ inputs.workingDirectory }}
 
     - name: Build and publish container
-      uses: spritely/actions.container-build@v0.1.2
+      uses: spritely/actions.publish-container@v0.1.2
       with:
         registryUsername: ${{ inputs.registryUsername }}
         registryPassword: ${{ inputs.registryPassword }}

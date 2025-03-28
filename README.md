@@ -60,7 +60,7 @@ on: [push, workflow_dispatch]
 env:
   BUILD_VERSION_TAG: v0.14.0
 
-# Permissions required for versioned-container-build to be able to publish container images and
+# Permissions required for container to be able to publish container images and
 # to do automatic semantic version tagging
 permissions:
     actions: read
@@ -75,7 +75,7 @@ jobs:
 
     steps:
       - name: Build and publish container
-        uses: spritely/build/versioned-container-build@v0.14
+        uses: spritely/build/container@v0.14
         with:
           registryUsername: ${{ github.actor }}
           registryPassword: ${{ github.token }}
@@ -100,7 +100,7 @@ env:
   BUILD_VERSION_TAG: v0.14.0
 
 # Permissions required for dotnet-test-cover to report test results,
-# for dotnet-container-build to be able to publish container images and
+# for dotnet-container to be able to publish container images and
 # to do automatic semantic version tagging
 permissions:
     actions: read
@@ -115,7 +115,7 @@ jobs:
 
     steps:
       - name: Build and publish .NET container
-        uses: spritely/build/dotnet-container-build@v0.14
+        uses: spritely/build/dotnet-container@v0.14
         with:
           registryUsername: ${{ github.actor }}
           registryPassword: ${{ github.token }}
@@ -139,7 +139,7 @@ env:
   BUILD_VERSION_TAG: v0.14.0
 
 # Permissions required for dotnet-test-cover to report test results,
-# for dotnet-package-build to be able to publish NuGet packages and
+# for dotnet-package to be able to publish NuGet packages and
 # to do automatic semantic version tagging
 # Note that respositories may also need to edit their package
 # publishing permissions settings.
@@ -156,7 +156,7 @@ jobs:
 
     steps:
       - name: Build and publish dotnet package
-        uses: spritely/build/dotnet-package-build@v0.14
+        uses: spritely/build/dotnet-package@v0.14
         with:
           registryUsername: ${{ github.actor }}
           registryPassword: ${{ github.token }}
