@@ -24,9 +24,6 @@ name: Build
 
 on: [push, workflow_dispatch]
 
-env:
-  BUILD_VERSION_TAG: v0.14.0
-
 # Permissions required to apply semantic version tags to the repository
 permissions:
   contents: write
@@ -56,9 +53,6 @@ To setup a container build, add a file called ./.github/workflows/build.yml with
 name: Build and Publish Container
 
 on: [push, workflow_dispatch]
-
-env:
-  BUILD_VERSION_TAG: v0.14.0
 
 # Permissions required for container to be able to publish container images and
 # to do automatic semantic version tagging
@@ -96,9 +90,6 @@ name: Build and Publish .NET Container
 
 on: [push, workflow_dispatch]
 
-env:
-  BUILD_VERSION_TAG: v0.14.0
-
 # Permissions required for dotnet-test-cover to report test results,
 # for dotnet-container to be able to publish container images and
 # to do automatic semantic version tagging
@@ -134,9 +125,6 @@ To setup a NuGet package build, add a file called ./.github/workflows/build.yml 
 name: Build and Publish .NET Package
 
 on: [push, workflow_dispatch]
-
-env:
-  BUILD_VERSION_TAG: v0.14.0
 
 # Permissions required for dotnet-test-cover to report test results,
 # for dotnet-package to be able to publish NuGet packages and
