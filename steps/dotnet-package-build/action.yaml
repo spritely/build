@@ -61,13 +61,11 @@ runs:
         registryHost: ${{ inputs.registryHost }}
 
     - name: Build and publish nuget package
-      uses: spritely/build/steps/nuget-package-build@improve-reuse
+      uses: spritely/actions.publish-nuget@0.1.0
       with:
         packageRepository: ${{ inputs.packageRepository }}
         nugetAuthToken: ${{ inputs.nugetAuthToken }}
-        projectFile: ${{ inputs.projectFile }}
-        projectDirectory: ${{ inputs.projectDirectory }}
-        workingDirectory: ${{ inputs.workingDirectory }}
+        projectFile: ${{ inputs.projectDirectory }}/${{ inputs.projectFile }}
         version: ${{ steps.version.outputs.version }}
         registryUsername: ${{ inputs.registryUsername }}
         registryPassword: ${{ inputs.registryPassword }}
