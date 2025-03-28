@@ -74,16 +74,8 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-      - name: Pull build
-        uses: actions/checkout@v4
-        with:
-          repository: spritely/build
-          path: ./build
-          ref: ${{ env.BUILD_VERSION_TAG }}
-          token: ${{ secrets.BUILD_REPO_READ_TOKEN }}
-
       - name: Build and publish container
-        uses: ./build/steps/versioned-container-build
+        uses: spritely/build/versioned-container-build@v0.14
         with:
           registryUsername: ${{ github.actor }}
           registryPassword: ${{ github.token }}
@@ -122,16 +114,8 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-      - name: Pull build
-        uses: actions/checkout@v4
-        with:
-          repository: spritely/build
-          path: ./build
-          ref: ${{ env.BUILD_VERSION_TAG }}
-          token: ${{ secrets.BUILD_REPO_READ_TOKEN }}
-
       - name: Build and publish .NET container
-        uses: ./build/steps/dotnet-container-build
+        uses: spritely/build/dotnet-container-build@v0.14
         with:
           registryUsername: ${{ github.actor }}
           registryPassword: ${{ github.token }}
@@ -171,16 +155,8 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-      - name: Pull build
-        uses: actions/checkout@v4
-        with:
-          repository: spritely/build
-          path: ./build
-          ref: ${{ env.BUILD_VERSION_TAG }}
-          token: ${{ secrets.BUILD_REPO_READ_TOKEN }}
-
       - name: Build and publish dotnet package
-        uses: ./build/steps/dotnet-package-build
+        uses: spritely/build/dotnet-package-build@v0.14
         with:
           registryUsername: ${{ github.actor }}
           registryPassword: ${{ github.token }}

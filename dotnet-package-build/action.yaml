@@ -1,9 +1,16 @@
-name: Build and publish dotnet container
-description: Runs build, tests, and publishing of a dotnet container image to the container registry, including applying a semantic version.
+name: Build and publish dotnet package
+description: Runs build, tests, and publishing of a dotnet package to the package registry, including applying a semantic version.
 
 inputs:
+  packageRepository:
+    description: The URL of the NuGet package repository to push to.
+    required: false
+    default: https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
   nugetAuthToken:
     description: The NuGet authentication token to use when pushing or pulling packages.
+    required: true
+  projectFile:
+    description: The project file to package such as MyProject.csproj. Do not include the path here.
     required: true
   registryUsername:
     description: The username to use to authenticate with the container registry.
@@ -11,21 +18,10 @@ inputs:
   registryPassword:
     description: The token to use to authenticate with the container registry.
     required: true
-  imageNames:
-    description: The names of the images to tag and publish.
-    required: true
-  context:
-    description: The context to use when building. Defaults to ./src/
+  projectDirectory:
+    description: The directory containing the project to be packaged. Defaults to ./
     required: false
-    default: ./src/
-  dockerfile:
-    description: The dockerfile to build. Defaults to ./src/Dockerfile
-    required: false
-    default: ./src/Dockerfile
-  registryHost:
-    description: The host of the container registry to push to. Defaults to ghcr.io
-    required: false
-    default: ghcr.io
+    default: ./
   workingDirectory:
     description: The directory to run the git commands in. Defaults to ./src/
     required: false
@@ -39,6 +35,10 @@ inputs:
     description: The minimum code coverage percentage required for the build to pass. Defaults to 90
     required: false
     default: "90"
+  registryHost:
+    description: The host of the container registry to push to. Defaults to ghcr.io
+    required: false
+    default: ghcr.io
 
 runs:
   using: composite
@@ -50,29 +50,26 @@ runs:
         workingDirectory: ${{ inputs.workingDirectory }}
 
     - name: Unit test with code coverage
-      uses: spritely/build/steps/dotnet-test-cover@improve-reuse
+      uses: spritely/build/dotnet-test-cover@improve-reuse
       with:
         nugetAuthToken: ${{ inputs.nugetAuthToken }}
-        registryUsername: ${{ inputs.registryUsername }}
-        registryPassword: ${{ inputs.registryPassword }}
-        registryHost: ${{ inputs.registryHost }}
         coverageThreshold: ${{ inputs.coverageThreshold }}
         unitTestProjects: ${{ inputs.unitTestProjects }}
         workingDirectory: ${{ inputs.workingDirectory }}
-
-    - name: Build and publish container
-      uses: spritely/actions.container-build@v0.1.2
-      with:
         registryUsername: ${{ inputs.registryUsername }}
         registryPassword: ${{ inputs.registryPassword }}
         registryHost: ${{ inputs.registryHost }}
-        containerSecrets: |
-          NUGET_USER=${{ github.actor }}
-          NUGET_TOKEN=${{ inputs.nugetAuthToken }}
-        context: ${{ inputs.context }}
-        dockerfile: ${{ inputs.dockerfile }}
-        imageNames: ${{ inputs.imageNames }}
+
+    - name: Build and publish nuget package
+      uses: spritely/actions.publish-nuget@0.1.0
+      with:
+        packageRepository: ${{ inputs.packageRepository }}
+        nugetAuthToken: ${{ inputs.nugetAuthToken }}
+        projectFile: ${{ inputs.projectDirectory }}/${{ inputs.projectFile }}
         version: ${{ steps.version.outputs.version }}
+        registryUsername: ${{ inputs.registryUsername }}
+        registryPassword: ${{ inputs.registryPassword }}
+        registryHost: ${{ inputs.registryHost }}
 
     - name: Apply semantic version
       if: ${{ steps.version.outputs.branchName == github.event.repository.default_branch }}
