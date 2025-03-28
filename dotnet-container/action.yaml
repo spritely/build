@@ -29,7 +29,7 @@ inputs:
   workingDirectory:
     description: The directory to run the git commands in. Defaults to ./src/
     required: false
-    default: ./src/
+    default: ./
   unitTestProjects:
     # It is important to only pass 'Unit' test projects since the build won't be deployed yet and thus these tests cannot depend on anything in the environment to run
     description: The path to all unit tests projects to run. Defaults to **/*.UnitTests.csproj
@@ -46,8 +46,6 @@ runs:
     - id: version
       name: Get semantic version
       uses: spritely/actions.semantic-version/get@v0.2.2
-      with:
-        workingDirectory: ${{ inputs.workingDirectory }}
 
     - name: Unit test with code coverage
       uses: spritely/build/dotnet-test-cover@improve-reuse
@@ -79,4 +77,3 @@ runs:
       uses: spritely/actions.semantic-version/apply@v0.2.2
       with:
         version: ${{ steps.version.outputs.version }}
-        workingDirectory: ${{ inputs.workingDirectory }}

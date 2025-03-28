@@ -82,9 +82,9 @@ jobs:
           # Always prefix all names with the registry host name (an optional parameter that defaults to ghcr.io)
           # Otherwise, the build will attempt to publish to those registries, but will not have signed into them
           imageNames: ghcr.io/my-organization/repository-name
-          # Note that build pulls the repo contents root to ./src/
-          context: ./src/ # Defaults to ./src/
-          dockerfile: ./src/Dockerfile #Defaults to ./src/Dockerfile
+          # Optional - defaults are as follows:
+          #context: ./
+          #dockerfile: ./Dockerfile
 ```
 
 ### Build and Publish .NET Container
