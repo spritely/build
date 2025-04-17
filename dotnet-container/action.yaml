@@ -48,7 +48,7 @@ runs:
       uses: spritely/actions.semantic-version/get@v0.2.2
 
     - name: Unit test with code coverage
-      uses: spritely/actions.publish-container@test-dotnet@initial-project
+      uses: spritely/actions.test-dotnet@initial-project
       with:
         nugetAuthToken: ${{ inputs.nugetAuthToken }}
         coverageThreshold: ${{ inputs.coverageThreshold }}
