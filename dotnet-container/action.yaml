@@ -48,19 +48,21 @@ runs:
       uses: spritely/actions.semantic-version/get@v0.2.2
 
     - name: Unit test with code coverage
-      uses: spritely/build/dotnet-test-cover@improve-reuse
+      uses: spritely/actions.publish-container@test-dotnet@initial-project
       with:
         nugetAuthToken: ${{ inputs.nugetAuthToken }}
+        coverageThreshold: ${{ inputs.coverageThreshold }}
+        unitTestProjects: ${{ inputs.unitTestProjects }}
+        # To access private devcontainers
         registryUsername: ${{ inputs.registryUsername }}
         registryPassword: ${{ inputs.registryPassword }}
         registryHost: ${{ inputs.registryHost }}
-        coverageThreshold: ${{ inputs.coverageThreshold }}
-        unitTestProjects: ${{ inputs.unitTestProjects }}
-        workingDirectory: ${{ inputs.workingDirectory }}
+        publishResults: true
 
     - name: Build and publish container
       uses: spritely/actions.publish-container@v0.1.2
       with:
+        # Container publishing credentials
         registryUsername: ${{ inputs.registryUsername }}
         registryPassword: ${{ inputs.registryPassword }}
         registryHost: ${{ inputs.registryHost }}
