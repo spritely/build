@@ -12,13 +12,13 @@ inputs:
     description: The names of the images to tag and publish.
     required: true
   context:
-    description: The context to use when building. Defaults to ./src/
+    description: The context to use when building. Defaults to ./
     required: false
-    default: ./src/
+    default: ./
   dockerfile:
-    description: The dockerfile to build. Defaults to ./src/Dockerfile
+    description: The dockerfile to build. Defaults to ./Dockerfile
     required: false
-    default: ./src/Dockerfile
+    default: ./Dockerfile
   registryHost:
     description: The host of the container registry to push to. Defaults to ghcr.io
     required: false

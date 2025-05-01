@@ -22,10 +22,6 @@ inputs:
     description: The directory containing the project to be packaged. Defaults to ./
     required: false
     default: ./
-  workingDirectory:
-    description: The directory to run the git commands in. Defaults to ./src/
-    required: false
-    default: ./
   unitTestProjects:
     # It is important to only pass 'Unit' test projects since the build won't be deployed yet and thus these tests cannot depend on anything in the environment to run
     description: The path to all unit tests projects to run. Defaults to **/*.UnitTests.csproj
@@ -48,7 +44,7 @@ runs:
       uses: spritely/actions.semantic-version/get@v0.2.2
 
     - name: Unit test with code coverage
-      uses: spritely/actions.test-dotnet@initial-project
+      uses: spritely/actions.test-dotnet@v0.1.0
       with:
         nugetAuthToken: ${{ inputs.nugetAuthToken }}
         coverageThreshold: ${{ inputs.coverageThreshold }}

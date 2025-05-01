@@ -129,7 +129,7 @@ on: [push, workflow_dispatch]
 # Permissions required for dotnet-test-cover to report test results,
 # for dotnet-package to be able to publish NuGet packages and
 # to do automatic semantic version tagging
-# Note that respositories may also need to edit their package
+# Note that repositories may also need to edit their package
 # publishing permissions settings.
 permissions:
     actions: read
