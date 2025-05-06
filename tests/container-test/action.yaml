@@ -1,0 +1,108 @@
+name: Build container action publishes expected container
+description: Test to validate that build container action publishes expected container
+
+
+runs:
+  using: composite
+  steps:
+    - name: Initialize test
+      shell: bash
+      run: |
+        source ${{ github.workspace }}/tests/test-reporter.sh
+        initialize_test "build container action publishes expected container" "container-test"
+
+    - name: Setup test environment
+      shell: bash
+      run: |
+        # Create isolated git repo
+        TEST_REPO=$(mktemp -d)
+        echo "TEST_REPO=$TEST_REPO" >> $GITHUB_ENV
+
+        cd $TEST_REPO
+        git init --initial-branch=main
+        git config --local user.name "Test User"
+        git config --local user.email "test@example.com"
+
+        cat > $TEST_REPO/Dockerfile << 'EOF'
+        FROM alpine:latest
+        CMD ["echo", "Test Container"]
+        EOF
+
+        git commit -m "Initial commit"
+
+        # Start local container registry
+        docker run -d -p 5000:5000 \
+            -v ${{ github.workspace }}/tests/container-registry:/auth \
+            -e REGISTRY_AUTH=htpasswd \
+            -e REGISTRY_AUTH_HTPASSWD_REALM="Registry Realm" \
+            -e REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd \
+            --name registry registry:2
+
+    - name: Run container action
+      env:
+        # Redirect git operations to test repo
+        GIT_DIR: ${{ env.TEST_REPO }}/.git
+        GIT_WORK_TREE: ${{ env.TEST_REPO }}
+      uses: ./container
+      with:
+        registryHost: localhost:5000
+        registryUsername: testuser
+        registryPassword: testpassword
+        imageNames: localhost:5000/test-image
+        context: ${{ env.TEST_REPO }}
+        dockerfile: ${{ env.TEST_REPO }}/Dockerfile
+
+    - name: Assert container was published
+      shell: bash
+      run: |
+        source ${{ github.workspace }}/tests/test-reporter.sh
+        set_test_name "Assert container was published"
+
+        # Verify the container can be pulled
+        docker pull localhost:5000/test-image:latest
+        if [ $? -ne 0 ]; then
+            failure "Failed to pull container"
+            exit 1
+        fi
+
+        # Verify the container runs
+        output=$(docker run --rm localhost:5000/test-image:latest)
+        if [ "$output" != "Test Container" ]; then
+            failure "Container output does not match expected: $output"
+            exit 1
+        fi
+
+        success "Container runs correctly with expected output"
+
+    - name: Assert semantic versioning was applied
+      shell: bash
+      env:
+        GIT_DIR: ${{ env.TEST_REPO }}/.git
+      run: |
+        cd ${{ env.TEST_REPO }}
+
+        # List all tags
+        git_tags=$(git tag -l)
+        echo "Git tags: $git_tags"
+
+        # Check for version tag
+        if ! git tag -l | grep -q "v0.0.1"; then
+            failure "Expected version tag v0.0.1 not found"
+            exit 1
+        else
+            success "Semantic version tag v0.0.1 successfully applied"
+        fi
+
+    - name: Clean up test environment
+      shell: bash
+      if: always()
+      run: |
+        # Remove test repo
+        rm -rf ${{ env.TEST_REPO }}
+
+    - name: Finalize test
+      shell: bash
+      if: always()
+      run: |
+        source ${{ github.workspace }}/tests/test-reporter.sh
+        finalize_test
