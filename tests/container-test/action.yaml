@@ -66,6 +66,9 @@ runs:
     - name: Assert semantic versioning was applied
       shell: bash
       run: |
+        source ${{ github.workspace }}/tests/test-reporter.sh
+        set_test_name "Assert semantic versioning was applied"
+
         if ! git tag -l | grep -q "v${{ steps.version.outputs.version }}"; then
             failure "Expected version tag v${{ steps.version.outputs.version }} not found"
             exit 1
