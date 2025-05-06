@@ -17,19 +17,6 @@ runs:
         # Save initial state
         git rev-parse HEAD > /tmp/original_head
 
-        # Configure git identity for test commits
-        git config user.name "Test User"
-        git config user.email "test@example.com"
-
-        cd ${{ github.workspace }}/tests/container-test
-        cat > Dockerfile << 'EOF'
-        FROM alpine:latest
-        CMD ["echo", "Test Container"]
-        EOF
-
-        git add Dockerfile
-        git commit -m "Add Dockerfile"
-
         # Start local container registry
         docker run -d -p 5000:5000 \
             -v ${{ github.workspace }}/tests/container-registry:/auth \
@@ -38,6 +25,12 @@ runs:
             -e REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd \
             --name registry registry:2
 
+    - id: version
+      name: Get semantic version
+      uses: spritely/actions.semantic-version/get@v0.2.2
+      with:
+        skipCheckout: true
+
     - name: Run container action
       uses: ./container
       with:
@@ -45,8 +38,8 @@ runs:
         registryUsername: testuser
         registryPassword: testpassword
         imageNames: localhost:5000/test-image
-        context: ${{ github.workspace }}/tests/container-test
-        dockerfile: ${{ github.workspace }}/tests/container-test/Dockerfile
+        context: ./tests/container-test
+        dockerfile: ./tests/container-test/Dockerfile
 
     - name: Assert container was published
       shell: bash
@@ -73,17 +66,11 @@ runs:
     - name: Assert semantic versioning was applied
       shell: bash
       run: |
-        # Need to find expected tag so the test is correct
-        # List all tags
-        git_tags=$(git tag -l)
-        echo "Git tags: $git_tags"
-
-        # Check for version tag
-        if ! git tag -l | grep -q "v0.0.1"; then
-            failure "Expected version tag v0.0.1 not found"
+        if ! git tag -l | grep -q "v${{ steps.version.outputs.version }}"; then
+            failure "Expected version tag v${{ steps.version.outputs.version }} not found"
             exit 1
         else
-            success "Semantic version tag v0.0.1 successfully applied"
+            success "Semantic version tag v${{ steps.version.outputs.version }} successfully applied"
         fi
 
     - name: Clean up test environment
