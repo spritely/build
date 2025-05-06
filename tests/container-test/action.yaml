@@ -14,22 +14,20 @@ runs:
     - name: Setup test environment
       shell: bash
       run: |
-        # Create isolated git repo
-        TEST_REPO=$(mktemp -d)
-        echo "TEST_REPO=$TEST_REPO" >> $GITHUB_ENV
+        # Save initial state
+        git rev-parse HEAD > /tmp/original_head
 
-        cd $TEST_REPO
-        git init --initial-branch=main
-        git config --local user.name "Test User"
-        git config --local user.email "test@example.com"
+        # Configure git identity for test commits
+        git config user.name "Test User"
+        git config user.email "test@example.com"
 
-        cat > Dockerfile << 'EOF'
+        cat > ${{ github.workspace }}/tests/container-test/Dockerfile << 'EOF'
         FROM alpine:latest
         CMD ["echo", "Test Container"]
         EOF
 
         git add Dockerfile
-        git commit -m "Initial commit"
+        git commit -m "Add Dockerfile"
 
         # Start local container registry
         docker run -d -p 5000:5000 \
@@ -40,18 +38,14 @@ runs:
             --name registry registry:2
 
     - name: Run container action
-      env:
-        # Redirect git operations to test repo
-        GIT_DIR: ${{ env.TEST_REPO }}/.git
-        GIT_WORK_TREE: ${{ env.TEST_REPO }}
       uses: ./container
       with:
         registryHost: localhost:5000
         registryUsername: testuser
         registryPassword: testpassword
         imageNames: localhost:5000/test-image
-        context: ${{ env.TEST_REPO }}
-        dockerfile: ${{ env.TEST_REPO }}/Dockerfile
+        context: ${{ github.workspace }}/tests/container-test
+        dockerfile: ${{ github.workspace }}/tests/container-test/Dockerfile
 
     - name: Assert container was published
       shell: bash
@@ -77,11 +71,8 @@ runs:
 
     - name: Assert semantic versioning was applied
       shell: bash
-      env:
-        GIT_DIR: ${{ env.TEST_REPO }}/.git
       run: |
-        cd ${{ env.TEST_REPO }}
-
+        # Need to find expected tag so the test is correct
         # List all tags
         git_tags=$(git tag -l)
         echo "Git tags: $git_tags"
@@ -98,8 +89,9 @@ runs:
       shell: bash
       if: always()
       run: |
-        # Remove test repo
-        rm -rf ${{ env.TEST_REPO }}
+        # Reset repository to original state
+        git reset --hard $(cat /tmp/original_head)
+        git clean -fdx
 
     - name: Finalize test
       shell: bash
