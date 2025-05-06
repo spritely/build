@@ -21,7 +21,8 @@ runs:
         git config user.name "Test User"
         git config user.email "test@example.com"
 
-        cat > ${{ github.workspace }}/tests/container-test/Dockerfile << 'EOF'
+        cd ${{ github.workspace }}/tests/container-test
+        cat > Dockerfile << 'EOF'
         FROM alpine:latest
         CMD ["echo", "Test Container"]
         EOF
