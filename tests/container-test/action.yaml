@@ -23,11 +23,12 @@ runs:
         git config --local user.name "Test User"
         git config --local user.email "test@example.com"
 
-        cat > $TEST_REPO/Dockerfile << 'EOF'
+        cat > Dockerfile << 'EOF'
         FROM alpine:latest
         CMD ["echo", "Test Container"]
         EOF
 
+        git add Dockerfile
         git commit -m "Initial commit"
 
         # Start local container registry
