@@ -48,14 +48,14 @@ runs:
         set_test_name "Assert container was published"
 
         # Verify the container can be pulled
-        docker pull localhost:5000/test-image:latest
+        docker pull localhost:5000/test-image:${{ steps.version.outputs.version }}
         if [ $? -ne 0 ]; then
             failure "Failed to pull container"
             exit 1
         fi
 
         # Verify the container runs
-        output=$(docker run --rm localhost:5000/test-image:latest)
+        output=$(docker run --rm localhost:5000/test-image:${{ steps.version.outputs.version }})
         if [ "$output" != "Test Container" ]; then
             failure "Container output does not match expected: $output"
             exit 1
