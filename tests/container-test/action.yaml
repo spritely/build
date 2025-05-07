@@ -1,7 +1,6 @@
 name: Build container action publishes expected container
 description: Test to validate that build container action publishes expected container
 
-
 runs:
   using: composite
   steps:
@@ -44,7 +43,7 @@ runs:
 
     - id: version
       name: Get semantic version
-      uses: spritely/actions.semantic-version/get@0.3.0
+      uses: spritely/actions.semantic-version/get@v0.3.0
       with:
         skipCheckout: true
         writeSummary: false

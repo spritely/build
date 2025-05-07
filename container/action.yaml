@@ -33,7 +33,7 @@ runs:
   steps:
     - id: version
       name: Get semantic version
-      uses: spritely/actions.semantic-version/get@0.3.0
+      uses: spritely/actions.semantic-version/get@v0.3.0
       with:
         writeSummary: ${{ inputs.writeSummary }}
 
@@ -51,6 +51,6 @@ runs:
 
     - name: Apply semantic version
       if: ${{ steps.version.outputs.branchName == github.event.repository.default_branch }}
-      uses: spritely/actions.semantic-version/apply@0.3.0
+      uses: spritely/actions.semantic-version/apply@v0.3.0
       with:
         version: ${{ steps.version.outputs.version }}
