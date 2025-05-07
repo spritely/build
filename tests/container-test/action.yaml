@@ -47,7 +47,7 @@ runs:
       uses: spritely/actions.semantic-version/get@v0.2.2
       with:
         skipCheckout: true
-        writeSummary: true
+        writeSummary: false
 
     - name: Run container action
       uses: ./container
