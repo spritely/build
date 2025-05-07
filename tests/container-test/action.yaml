@@ -57,6 +57,7 @@ runs:
         imageNames: localhost:5000/test-image
         context: ./tests/container-test
         dockerfile: ./tests/container-test/Dockerfile
+        writeSummary: false
 
     - name: Initialize test
       shell: bash
