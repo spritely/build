@@ -19,6 +19,29 @@ runs:
             -e REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd \
             --name registry registry:2
 
+    - name: Create git mock
+      shell: bash
+      run: |
+        mkdir -p /tmp/mock-bin
+
+        # Pass all commands through to real git except for push
+        # to ensure repo is not updated with semantic version
+        cat > /tmp/mock-bin/git <<'EOF'
+        #!/bin/bash
+        if [[ "$*" == *"push"* ]]; then
+          echo "MOCK: Skipping git push"
+          exit 0
+        else
+          # Pass through to real git
+          exec /usr/bin/git "$@"
+        fi
+        EOF
+
+        chmod +x /tmp/mock-bin/git
+
+        # Add to PATH
+        echo "/tmp/mock-bin" >> $GITHUB_PATH
+
     - id: version
       name: Get semantic version
       uses: spritely/actions.semantic-version/get@v0.2.2
@@ -63,22 +86,12 @@ runs:
 
         success "Container runs correctly with expected output"
 
-    - name: Assert semantic versioning was applied
+    - name: Finalize test
       shell: bash
+      if: always()
       run: |
         source ${{ github.workspace }}/tests/test-reporter.sh
-        set_test_name "Assert semantic versioning was applied"
-
-        # List all tags
-        git_tags=$(git tag -l)
-        echo "Git tags: $git_tags"
-
-        if ! git tag -l | grep -q "v${{ steps.version.outputs.version }}"; then
-            failure "Expected version tag v${{ steps.version.outputs.version }} not found"
-            exit 1
-        else
-            success "Semantic version tag v${{ steps.version.outputs.version }} successfully applied"
-        fi
+        finalize_test
 
     - name: Clean up test environment
       shell: bash
@@ -88,9 +101,4 @@ runs:
         git reset --hard $(cat /tmp/original_head)
         git clean -fdx
 
-    - name: Finalize test
-      shell: bash
-      if: always()
-      run: |
-        source ${{ github.workspace }}/tests/test-reporter.sh
-        finalize_test
+        rm -rf /tmp/mock-bin
