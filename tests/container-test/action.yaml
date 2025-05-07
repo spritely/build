@@ -5,6 +5,12 @@ description: Test to validate that build container action publishes expected con
 runs:
   using: composite
   steps:
+    - name: Initialize test
+      shell: bash
+      run: |
+        source ${{ github.workspace }}/tests/test-reporter.sh
+        initialize_test "build container action publishes expected container" "container-test"
+
     - name: Setup test environment
       shell: bash
       run: |
@@ -58,12 +64,6 @@ runs:
         context: ./tests/container-test
         dockerfile: ./tests/container-test/Dockerfile
 
-    - name: Initialize test
-      shell: bash
-      run: |
-        source ${{ github.workspace }}/tests/test-reporter.sh
-        initialize_test "build container action publishes expected container" "container-test"
-
     - name: Assert container was published
       shell: bash
       run: |
@@ -86,19 +86,18 @@ runs:
 
         success "Container runs correctly with expected output"
 
-    - name: Finalize test
-      shell: bash
-      if: always()
-      run: |
-        source ${{ github.workspace }}/tests/test-reporter.sh
-        finalize_test
-
     - name: Clean up test environment
       shell: bash
       if: always()
       run: |
         # Reset repository to original state
         git reset --hard $(cat /tmp/original_head)
-        git clean -fdx
 
         rm -rf /tmp/mock-bin
+
+    - name: Finalize test
+      shell: bash
+      if: always()
+      run: |
+        source ${{ github.workspace }}/tests/test-reporter.sh
+        finalize_test
