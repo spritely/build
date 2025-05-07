@@ -5,12 +5,6 @@ description: Test to validate that build container action publishes expected con
 runs:
   using: composite
   steps:
-    - name: Initialize test
-      shell: bash
-      run: |
-        source ${{ github.workspace }}/tests/test-reporter.sh
-        initialize_test "build container action publishes expected container" "container-test"
-
     - name: Setup test environment
       shell: bash
       run: |
@@ -63,6 +57,12 @@ runs:
         imageNames: localhost:5000/test-image
         context: ./tests/container-test
         dockerfile: ./tests/container-test/Dockerfile
+
+    - name: Initialize test
+      shell: bash
+      run: |
+        source ${{ github.workspace }}/tests/test-reporter.sh
+        initialize_test "build container action publishes expected container" "container-test"
 
     - name: Assert container was published
       shell: bash
