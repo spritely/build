@@ -36,11 +36,11 @@ jobs:
     steps:
       - id: version
         name: Get semantic version
-        uses: spritely/actions.semantic-version/get@v0.2.2
+        uses: spritely/actions.semantic-version/get@v0.3.0
 
       - name: Apply semantic version
         if: ${{ steps.version.outputs.branchName == github.event.repository.default_branch }}
-        uses: spritely/actions.semantic-version/apply@v0.2.2
+        uses: spritely/actions.semantic-version/apply@v0.3.0
         with:
           version: ${{ steps.version.outputs.version }}
 ```
