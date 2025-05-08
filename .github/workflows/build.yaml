@@ -15,8 +15,29 @@ jobs:
         name: Get semantic version
         uses: spritely/actions.semantic-version/get@v0.3.0
 
+      - name: Create .env for build
+        shell: bash
+        run: |
+          cat > ./.devcontainer/.env <<EOF
+          EOF
+
+      - id: setup-tests
+        name: Setup test container registry
+        run: |
+          mkdir -p test-results
+
+          docker run -d -p 5000:5000 \
+              -v ${{ github.workspace }}/tests/auth:/auth \
+              -e REGISTRY_AUTH=htpasswd \
+              -e REGISTRY_AUTH_HTPASSWD_REALM="Registry Realm" \
+              -e REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd \
+              --name registry registry:2
+
       - name: Run test - container-test
         uses: ./tests/container-test
+
+      - name: Run test - dotnet-container-test
+        uses: ./tests/dotnet-container-test
 
       - name: Add test report title
         if: always()
