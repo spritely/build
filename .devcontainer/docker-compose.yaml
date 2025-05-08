@@ -1,3 +1,7 @@
+networks:
+  build-network:
+    driver: bridge
+
 services:
   build-dev:
     container_name: build-dev

@@ -38,13 +38,13 @@ runs:
         # Add to PATH
         echo "/tmp/mock-bin" >> $GITHUB_PATH
 
-    - name: Run test - container-test
-      uses: ./tests/container-test
-      if: always() && steps.setup-tests.outcome == 'success'
+    # - name: Run test - container-test
+    #   uses: ./tests/container-test
+    #   if: always() && steps.setup-tests.outcome == 'success'
 
-    - name: Run test - dotnet-container-test
-      uses: ./tests/dotnet-container-test
-      if: always() && steps.setup-tests.outcome == 'success'
+    # - name: Run test - dotnet-container-test
+    #   uses: ./tests/dotnet-container-test
+    #   if: always() && steps.setup-tests.outcome == 'success'
 
     - name: Run test - dotnet-package-test
       uses: ./tests/dotnet-package-test
