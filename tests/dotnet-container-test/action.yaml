@@ -10,14 +10,6 @@ runs:
         # Save initial state
         git rev-parse HEAD > /tmp/original_head
 
-    - name: Setup test environment
-      uses: devcontainers/ci@v0.3
-      with:
-        runCmd: |
-          # Save initial state
-          git rev-parse HEAD > /tmp/original_head
-        push: never
-
     - id: version
       name: Get semantic version
       uses: spritely/actions.semantic-version/get@v0.3.0
