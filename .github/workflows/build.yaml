@@ -21,66 +21,8 @@ jobs:
           cat > ./.devcontainer/.env <<EOF
           EOF
 
-      - id: setup-tests
-        name: Setup test container registry
-        run: |
-          mkdir -p test-results
-
-          docker run -d -p 5000:5000 \
-              -v ${{ github.workspace }}/tests/container-registry:/auth \
-              -e REGISTRY_AUTH=htpasswd \
-              -e REGISTRY_AUTH_HTPASSWD_REALM="Registry Realm" \
-              -e REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd \
-              --name registry registry:2
-
-      - name: Create git mock
-        shell: bash
-        run: |
-          mkdir -p /tmp/mock-bin
-
-          # Pass all commands through to real git except for push
-          # to ensure repo is not updated with semantic version
-          cat > /tmp/mock-bin/git <<'EOF'
-          #!/bin/bash
-          if [[ "$*" == *"push"* ]]; then
-            echo "MOCK: Skipping git push"
-            exit 0
-          else
-            # Pass through to real git
-            exec /usr/bin/git "$@"
-          fi
-          EOF
-
-          chmod +x /tmp/mock-bin/git
-
-          # Add to PATH
-          echo "/tmp/mock-bin" >> $GITHUB_PATH
-
-      - name: Run test - container-test
-        uses: ./tests/container-test
-
-      - name: Run test - dotnet-container-test
-        uses: ./tests/dotnet-container-test
-
-      - name: Clean up test environment
-        shell: bash
-        if: always()
-        run: |
-          # Remove mocks
-          rm -rf /tmp/mock-bin
-
-      - name: Add test report title
-        if: always()
-        shell: bash
-        run: echo "# Test Results" >> $GITHUB_STEP_SUMMARY
-
-      - name: Generate test report
-        uses: dorny/test-reporter@v2.0.0
-        if: always()
-        with:
-          name: Test Results
-          path: test-results/*.xml
-          reporter: java-junit
+      - name: Run tests
+        uses: ./tests
 
       - name: Apply semantic version
         if: ${{ steps.version.outputs.branchName == github.event.repository.default_branch }}
