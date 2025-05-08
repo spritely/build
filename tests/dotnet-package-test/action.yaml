@@ -5,12 +5,10 @@ runs:
   using: composite
   steps:
     - name: Setup test environment
-      uses: devcontainers/ci@v0.3
-      with:
-        runCmd: |
-          # Save initial state
-          git rev-parse HEAD > /tmp/original_head
-        push: never
+      shell: bash
+      run: |
+        # Save initial state
+        git rev-parse HEAD > /tmp/original_head
 
     - id: version
       name: Get semantic version
@@ -60,14 +58,20 @@ runs:
 
         success "package published with correct version and content"
 
-    - name: Clean up test environment
+    - name: Clean up devcontainer environment
       if: always()
       uses: devcontainers/ci@v0.3
       with:
         runCmd: |
-          # Reset repository to original state
-          git reset --hard $(cat /tmp/original_head)
+          git clean -fdx
         push: never
+
+    - name: Clean up test environment
+      shell: bash
+      if: always()
+      run: |
+        # Reset repository to original state
+        git reset --hard $(cat /tmp/original_head)
 
     - name: Finalize test
       shell: bash
