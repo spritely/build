@@ -60,11 +60,13 @@ runs:
         success "Container published with correct version and content"
 
     - name: Clean up test environment
-      shell: bash
       if: always()
-      run: |
-        # Reset repository to original state
-        git reset --hard $(cat /tmp/original_head)
+      uses: devcontainers/ci@v0.3
+      with:
+        runCmd: |
+          # Reset repository to original state
+          git reset --hard $(cat /tmp/original_head)
+        push: never
 
     - name: Finalize test
       shell: bash
