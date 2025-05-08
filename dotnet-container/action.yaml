@@ -36,7 +36,7 @@ inputs:
     required: false
     default: "90"
   publishResults:
-    description: Whether to publish build results to GitHub step summary. Defaults to true. Set to 'false' to disable publishing.
+    description: Whether to publish results to the GitHub summary. Defaults to true. Set to 'false' to disable publishing.
     required: false
     default: "true"
 

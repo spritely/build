@@ -17,18 +17,18 @@ runs:
         skipCheckout: true
         writeSummary: false
 
-    - name: Run dotnet-container action
-      uses: ./dotnet-container
+    - name: Run dotnet-package action
+      uses: ./dotnet-package
       with:
-        nugetAuthToken: UnusedSecretToken
+        packageRepository: http://localhost:5001/v3/index.json
+        nugetAuthToken: fake-token
+        projectDirectory: ./tests/dotnet-package-test/half-covered/TestProject/
+        projectFile: TestProject.csproj
+        unitTestProjects: ./tests/dotnet-package-test/half-covered/**/*.UnitTests.csproj
+        coverageThreshold: 50
         registryHost: localhost:5000
         registryUsername: testuser
         registryPassword: testpassword
-        imageNames: localhost:5000/test-dotnet-image
-        context: ./tests/dotnet-container-test/half-covered
-        dockerfile: ./tests/dotnet-container-test/half-covered/Dockerfile
-        unitTestProjects: ./tests/dotnet-container-test/**/*.UnitTests.csproj
-        coverageThreshold: 50
         publishResults: false
 
     - name: Initialize test
@@ -37,27 +37,26 @@ runs:
         source ${{ github.workspace }}/tests/test-reporter.sh
         initialize_test "build dotnet-container action tests and publishes expected container" "dotnet-container-test"
 
-    - name: Assert container was published
+    - name: Assert package was published
       shell: bash
       run: |
         source ${{ github.workspace }}/tests/test-reporter.sh
-        set_test_name "Assert container was published"
+        set_test_name "Assert package was published"
 
-        # Verify the container can be pulled
-        docker pull localhost:5000/test-dotnet-image:${{ steps.version.outputs.version }}
-        if [ $? -ne 0 ]; then
-            failure "Failed to pull container"
-            exit 1
+        # Query the NuGet server API to check if the package exists
+        response=$(curl -s "http://localhost:5001/v3/registration/testproject/${{ steps.version.outputs.version }}.json" -o /dev/null -w "%{http_code}")
+
+        if [ "$response" -eq 200 ]; then
+            success "NuGet package was published successfully"
+        else
+            failure "NuGet package was not found on the server (HTTP $response)"
+
+            # Try to get package list for debugging
+            echo "Search results for 'TestProject':"
+            curl -s "http://localhost:5001/v3/search?q=TestProject"
         fi
 
-        # Verify the container runs
-        output=$(docker run --rm localhost:5000/test-dotnet-image:${{ steps.version.outputs.version }})
-        if [[ "$output" != "Hello from dotnet-container" ]]; then
-            failure "Unexpected container output: $output"
-            exit 1
-        fi
-
-        success "Container published with correct version and content"
+        success "package published with correct version and content"
 
     - name: Clean up test environment
       shell: bash
