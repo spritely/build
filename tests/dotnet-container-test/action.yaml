@@ -64,6 +64,7 @@ runs:
       uses: devcontainers/ci@v0.3
       with:
         runCmd: |
+          git config --global --add safe.directory /src
           git clean -fdx
         push: never
 
