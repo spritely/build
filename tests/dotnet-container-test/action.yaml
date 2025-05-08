@@ -47,8 +47,8 @@ runs:
         registryUsername: testuser
         registryPassword: testpassword
         imageNames: localhost:5000/test-dotnet-image
-        context: ./tests/dotnet-container-test
-        dockerfile: ./tests/dotnet-container-test/Dockerfile
+        context: ./tests/dotnet-container-test/half-covered
+        dockerfile: ./tests/dotnet-container-test/half-covered/Dockerfile
         unitTestProjects: ./tests/dotnet-container-test/**/*.UnitTests.csproj
         coverageThreshold: 50
         writeSummary: false
