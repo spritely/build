@@ -7,6 +7,6 @@ COPY . .
 RUN dotnet build TestProject
 
 FROM mcr.microsoft.com/dotnet/runtime:${RUNTIME_VARIANT}
-WORKDIR /TestProject
+WORKDIR /app
 COPY --from=build /app/TestProject/bin/Debug/net8.0 .
-CMD ["dotnet", "run"]
+CMD ["dotnet", "TestProject.dll"]
