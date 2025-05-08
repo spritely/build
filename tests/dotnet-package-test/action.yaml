@@ -20,9 +20,9 @@ runs:
     - name: Run dotnet-package action
       uses: ./dotnet-package
       with:
-        packageRepository: http://localhost:5001/v3/index.json
+        packageRepository: http://build-package-registry:5001/v3/index.json
         nugetAuthToken: fake-token
-        projectDirectory: ./tests/dotnet-package-test/half-covered/TestProject/
+        projectDirectory: ./tests/dotnet-package-test/half-covered/TestProject
         projectFile: TestProject.csproj
         unitTestProjects: ./tests/dotnet-package-test/half-covered/**/*.UnitTests.csproj
         coverageThreshold: 50
@@ -38,25 +38,27 @@ runs:
         initialize_test "build dotnet-container action tests and publishes expected container" "dotnet-container-test"
 
     - name: Assert package was published
-      shell: bash
-      run: |
-        source ${{ github.workspace }}/tests/test-reporter.sh
-        set_test_name "Assert package was published"
+      uses: devcontainers/ci@v0.3
+      with:
+        runCmd: |
+          source ./tests/test-reporter.sh
+          set_test_name "Assert package was published"
 
-        # Query the NuGet server API to check if the package exists
-        response=$(curl -s "http://localhost:5001/v3/registration/testproject/${{ steps.version.outputs.version }}.json" -o /dev/null -w "%{http_code}")
+          # Query the NuGet server API to check if the package exists
+          response=$(curl -s "http://build-package-registry:5001/v3/registration/testproject/${{ steps.version.outputs.version }}.json" -o /dev/null -w "%{http_code}")
 
-        if [ "$response" -eq 200 ]; then
-            success "NuGet package was published successfully"
-        else
-            failure "NuGet package was not found on the server (HTTP $response)"
+          if [ "$response" -eq 200 ]; then
+              success "NuGet package was published successfully"
+          else
+              failure "NuGet package was not found on the server (HTTP $response)"
 
-            # Try to get package list for debugging
-            echo "Search results for 'TestProject':"
-            curl -s "http://localhost:5001/v3/search?q=TestProject"
-        fi
+              # Try to get package list for debugging
+              echo "Search results for 'TestProject':"
+              curl -s "http://build-package-registry:5001/v3/search?q=TestProject"
+          fi
 
-        success "package published with correct version and content"
+          success "package published with correct version and content"
+        push: never
 
     - name: Clean up devcontainer environment
       if: always()

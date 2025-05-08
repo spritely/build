@@ -15,10 +15,6 @@ runs:
             -e REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd \
             --name registry registry:2
 
-        docker run -d -p 5001:80 \
-            -e ApiKey=fake-token \
-            --name baget loicsharma/baget:0.4.0-preview2
-
     - name: Create git mock
       shell: bash
       run: |
