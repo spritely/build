@@ -1,0 +1,106 @@
+name: Build dotnet-container action tests and publishes expected container
+description: Test to validate that build dotnet-container action tests and publishes expected container
+
+runs:
+  using: composite
+  steps:
+    - name: Setup test environment
+      shell: bash
+      run: |
+        # Save initial state
+        git rev-parse HEAD > /tmp/original_head
+
+        # Start local container registry
+        docker run -d -p 5000:5000 \
+            -v ${{ github.workspace }}/tests/container-registry:/auth \
+            -e REGISTRY_AUTH=htpasswd \
+            -e REGISTRY_AUTH_HTPASSWD_REALM="Registry Realm" \
+            -e REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd \
+            --name registry registry:2
+
+    - name: Create git mock
+      shell: bash
+      run: |
+        mkdir -p /tmp/mock-bin
+
+        # Pass all commands through to real git except for push
+        # to ensure repo is not updated with semantic version
+        cat > /tmp/mock-bin/git <<'EOF'
+        #!/bin/bash
+        if [[ "$*" == *"push"* ]]; then
+          echo "MOCK: Skipping git push"
+          exit 0
+        else
+          # Pass through to real git
+          exec /usr/bin/git "$@"
+        fi
+        EOF
+
+        chmod +x /tmp/mock-bin/git
+
+        # Add to PATH
+        echo "/tmp/mock-bin" >> $GITHUB_PATH
+
+    - id: version
+      name: Get semantic version
+      uses: spritely/actions.semantic-version/get@v0.3.0
+      with:
+        skipCheckout: true
+        writeSummary: false
+
+    - name: Run container action
+      uses: ./dotnet-container
+      with:
+        registryHost: localhost:5000
+        registryUsername: testuser
+        registryPassword: testpassword
+        imageNames: localhost:5000/test-dotnet-image
+        context: ./tests/dotnet-container-test
+        dockerfile: ./tests/dotnet-container-test/Dockerfile
+        unitTestProjects: ./tests/dotnet-container-test/**/*.UnitTests.csproj
+        coverageThreshold: 50
+        writeSummary: false
+
+    - name: Initialize test
+      shell: bash
+      run: |
+        source ${{ github.workspace }}/tests/test-reporter.sh
+        initialize_test "build dotnet-container action tests and publishes expected container" "dotnet-container-test"
+
+    - name: Assert container was published
+      shell: bash
+      run: |
+        source ${{ github.workspace }}/tests/test-reporter.sh
+        set_test_name "Assert container was published"
+
+        # Verify the container can be pulled
+        docker pull localhost:5000/test-dotnet-image:${{ steps.version.outputs.version }}
+        if [ $? -ne 0 ]; then
+            failure "Failed to pull container"
+            exit 1
+        fi
+
+        # Verify the container runs
+        output=$(docker run --rm localhost:5000/test-dotnet-image:${{ steps.version.outputs.version }})
+        if [[ "$output" != "Hello from dotnet-container" ]]; then
+            failure "Unexpected container output: $output"
+            exit 1
+        fi
+
+        success "Container published with correct version and content"
+
+    - name: Clean up test environment
+      shell: bash
+      if: always()
+      run: |
+        # Reset repository to original state
+        git reset --hard $(cat /tmp/original_head)
+
+        rm -rf /tmp/mock-bin
+
+    - name: Finalize test
+      shell: bash
+      if: always()
+      run: |
+        source ${{ github.workspace }}/tests/test-reporter.sh
+        finalize_test

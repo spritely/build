@@ -1,0 +1,11 @@
+services:
+  build-dev:
+    container_name: build-dev
+    build:
+      dockerfile: Dockerfile
+    command: /bin/sh -c "sleep infinity"
+    volumes:
+      - ../:/src
+      - ${HOME:-$USERPROFILE}/.ssh:/root/.ssh:ro
+    env_file:
+      - .env
