@@ -10,29 +10,6 @@ runs:
         # Save initial state
         git rev-parse HEAD > /tmp/original_head
 
-    - name: Create git mock
-      shell: bash
-      run: |
-        mkdir -p /tmp/mock-bin
-
-        # Pass all commands through to real git except for push
-        # to ensure repo is not updated with semantic version
-        cat > /tmp/mock-bin/git <<'EOF'
-        #!/bin/bash
-        if [[ "$*" == *"push"* ]]; then
-          echo "MOCK: Skipping git push"
-          exit 0
-        else
-          # Pass through to real git
-          exec /usr/bin/git "$@"
-        fi
-        EOF
-
-        chmod +x /tmp/mock-bin/git
-
-        # Add to PATH
-        echo "/tmp/mock-bin" >> $GITHUB_PATH
-
     - id: version
       name: Get semantic version
       uses: spritely/actions.semantic-version/get@v0.3.0
@@ -87,8 +64,6 @@ runs:
       run: |
         # Reset repository to original state
         git reset --hard $(cat /tmp/original_head)
-
-        rm -rf /tmp/mock-bin
 
     - name: Finalize test
       shell: bash
