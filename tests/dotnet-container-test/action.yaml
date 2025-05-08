@@ -5,10 +5,12 @@ runs:
   using: composite
   steps:
     - name: Setup test environment
-      shell: bash
-      run: |
-        # Save initial state
-        git rev-parse HEAD > /tmp/original_head
+      uses: devcontainers/ci@v0.3
+      with:
+        runCmd: |
+          # Save initial state
+          git rev-parse HEAD > /tmp/original_head
+        push: never
 
     - id: version
       name: Get semantic version
