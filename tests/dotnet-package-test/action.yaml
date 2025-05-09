@@ -31,17 +31,12 @@ runs:
         registryPassword: testpassword
         publishResults: false
 
-    - name: Initialize test
-      shell: bash
-      run: |
-        source ${{ github.workspace }}/tests/test-reporter.sh
-        initialize_test "build dotnet-package action tests and publishes expected package" "dotnet-package-test"
-
     - name: Assert package was published
       uses: devcontainers/ci@v0.3
       with:
         runCmd: |
-          source ./tests/test-reporter.sh
+          source /src/tests/test-reporter.sh
+          initialize_test "build dotnet-package action tests and publishes expected package" "dotnet-package-test"
           set_test_name "Assert package was published"
 
           # Query the NuGet server API to check if the package exists
@@ -58,23 +53,13 @@ runs:
           fi
 
           success "package published with correct version and content"
-        volumes: "/tmp/test-results:/tmp/test-results"
-        push: never
 
-    - name: Finalize test
-      shell: bash
-      if: always()
-      run: |
-        source ${{ github.workspace }}/tests/test-reporter.sh
-        finalize_test
+          finalize_test
 
-    - name: Clean up devcontainer environment
-      if: always()
-      uses: devcontainers/ci@v0.3
-      with:
-        runCmd: |
+          # Remove all extra files except test-results
           git config --global --add safe.directory /src
           git clean -fdx -e "test-results" -e "/tmp/test-results"
+        volumes: "/tmp/test-results:/tmp/test-results"
         push: never
 
     - name: Clean up test environment

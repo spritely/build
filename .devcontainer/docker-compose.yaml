@@ -18,8 +18,6 @@ services:
   build-package-registry:
     container_name: build-package-registry
     image: loicsharma/baget:0.4.0-preview2
-    ports:
-      - "5001:80"
     environment:
       - ApiKey=fake-token
     networks:
