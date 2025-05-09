@@ -57,7 +57,12 @@ runs:
             curl -s "http://localhost:5001/v3/search?q=TestProject"
         fi
 
-        success "package published with correct version and content"
+    - name: Clean up test environment
+      shell: bash
+      if: always()
+      run: |
+        # Reset repository to original state
+        git reset --hard $(cat /tmp/original_head)
 
     - name: Finalize test
       shell: bash
@@ -65,10 +70,3 @@ runs:
       run: |
         source ${{ github.workspace }}/tests/test-reporter.sh
         finalize_test
-
-    - name: Clean up test environment
-      shell: bash
-      if: always()
-      run: |
-        # Reset repository to original state
-        git reset --hard $(cat /tmp/original_head)

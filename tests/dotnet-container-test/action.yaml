@@ -59,20 +59,13 @@ runs:
 
         success "Container published with correct version and content"
 
-    - name: Finalize test
-      shell: bash
-      if: always()
-      run: |
-        source ${{ github.workspace }}/tests/test-reporter.sh
-        finalize_test
-
     - name: Clean up devcontainer environment
       if: always()
       uses: devcontainers/ci@v0.3
       with:
         runCmd: |
           git config --global --add safe.directory /src
-          git clean -fdx -e "test-results" -e "/tmp/test-results"
+          git clean -fdx
         push: never
 
     - name: Clean up test environment
@@ -81,3 +74,10 @@ runs:
       run: |
         # Reset repository to original state
         git reset --hard $(cat /tmp/original_head)
+
+    - name: Finalize test
+      shell: bash
+      if: always()
+      run: |
+        source ${{ github.workspace }}/tests/test-reporter.sh
+        finalize_test
