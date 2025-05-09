@@ -35,7 +35,7 @@ runs:
       shell: bash
       run: |
         source ${{ github.workspace }}/tests/test-reporter.sh
-        initialize_test "build dotnet-container action tests and publishes expected container" "dotnet-container-test"
+        initialize_test "build dotnet-package action tests and publishes expected package" "dotnet-package-test"
 
     - name: Assert package was published
       uses: devcontainers/ci@v0.3
