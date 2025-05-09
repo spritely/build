@@ -20,7 +20,7 @@ runs:
     - name: Run dotnet-package action
       uses: ./dotnet-package
       with:
-        packageRepository: http://host.docker.internal:5001/v3/index.json
+        packageRepository: http://172.17.0.1:5001/v3/index.json
         nugetAuthToken: fake-token
         projectDirectory: ./tests/dotnet-package-test/half-covered/TestProject
         projectFile: TestProject.csproj
