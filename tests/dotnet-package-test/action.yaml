@@ -58,6 +58,7 @@ runs:
           fi
 
           success "package published with correct version and content"
+        volumes: "/tmp/test-results:/tmp/test-results"
         push: never
 
     - name: Finalize test
