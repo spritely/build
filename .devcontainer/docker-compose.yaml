@@ -1,7 +1,3 @@
-networks:
-  build-network:
-    driver: bridge
-
 services:
   build-dev:
     container_name: build-dev
@@ -13,12 +9,4 @@ services:
       - ${HOME:-$USERPROFILE}/.ssh:/root/.ssh:ro
     env_file:
       - .env
-    networks:
-      - build-network
-  build-package-registry:
-    container_name: build-package-registry
-    image: loicsharma/baget:0.4.0-preview2
-    environment:
-      - ApiKey=fake-token
-    networks:
-      - build-network
+    network_mode: "host"
