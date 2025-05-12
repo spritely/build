@@ -12,33 +12,33 @@ inputs:
     description: The names of the images to tag and publish.
     required: true
   context:
-    description: The context to use when building. Defaults to ./src/
+    description: The context to use when building. Defaults to ./
     required: false
-    default: ./src/
+    default: ./
   dockerfile:
-    description: The dockerfile to build. Defaults to ./src/Dockerfile
+    description: The dockerfile to build. Defaults to ./Dockerfile
     required: false
-    default: ./src/Dockerfile
+    default: ./Dockerfile
   registryHost:
     description: The host of the container registry to push to. Defaults to ghcr.io
     required: false
     default: ghcr.io
-  workingDirectory:
-    description: The directory to run the git commands in. Defaults to ./src/
+  writeSummary:
+    description: Whether to write a summary to GitHub. Defaults to true.
     required: false
-    default: ./src/
+    default: "true"
 
 runs:
   using: composite
   steps:
     - id: version
       name: Get semantic version
-      uses: ./build/steps/get-semantic-version
+      uses: spritely/actions.semantic-version/get@v0.3.1
       with:
-        workingDirectory: ${{ inputs.workingDirectory }}
+        writeSummary: ${{ inputs.writeSummary }}
 
     - name: Build and publish container
-      uses: ./build/steps/container-build
+      uses: spritely/actions.publish-container@v0.1.3
       with:
         registryUsername: ${{ inputs.registryUsername }}
         registryPassword: ${{ inputs.registryPassword }}
@@ -47,10 +47,10 @@ runs:
         dockerfile: ${{ inputs.dockerfile }}
         imageNames: ${{ inputs.imageNames }}
         version: ${{ steps.version.outputs.version }}
+        writeSummary: ${{ inputs.writeSummary }}
 
     - name: Apply semantic version
       if: ${{ steps.version.outputs.branchName == github.event.repository.default_branch }}
-      uses: ./build/steps/apply-semantic-version
+      uses: spritely/actions.semantic-version/apply@v0.3.1
       with:
         version: ${{ steps.version.outputs.version }}
-        workingDirectory: ${{ inputs.workingDirectory }}

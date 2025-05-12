@@ -1,0 +1,72 @@
+name: Build dotnet-container action tests and publishes expected container
+description: Test to validate that build dotnet-container action tests and publishes expected container
+
+runs:
+  using: composite
+  steps:
+    - name: Setup test environment
+      shell: bash
+      run: |
+        # Save initial state
+        git rev-parse HEAD > /tmp/original_head
+
+    - id: version
+      name: Get semantic version
+      uses: spritely/actions.semantic-version/get@v0.3.1
+      with:
+        skipCheckout: true
+        writeSummary: false
+
+    - name: Run dotnet-package action
+      uses: ./dotnet-package
+      with:
+        # Connect to host machine via ip for docker default gateway
+        packageRepository: http://172.17.0.1:5001/v3/index.json
+        nugetAuthToken: fake-token
+        projectDirectory: ./tests/dotnet-package-test/half-covered/TestProject
+        projectFile: TestProject.csproj
+        unitTestProjects: ./tests/dotnet-package-test/half-covered/**/*.UnitTests.csproj
+        coverageThreshold: 50
+        registryHost: localhost:5000
+        registryUsername: testuser
+        registryPassword: testpassword
+        writeSummary: false
+
+    - name: Initialize test
+      shell: bash
+      run: |
+        source ${{ github.workspace }}/tests/test-reporter.sh
+        initialize_test "build dotnet-package action tests and publishes expected package" "dotnet-package-test"
+
+    - name: Assert package was published
+      shell: bash
+      run: |
+        source ${{ github.workspace }}/tests/test-reporter.sh
+        set_test_name "Assert package was published"
+
+        # Query the NuGet server API to check if the package exists
+        response=$(curl -s "http://localhost:5001/v3/registration/testproject/${{ steps.version.outputs.version }}.json" -o /dev/null -w "%{http_code}")
+
+        if [ "$response" -eq 200 ]; then
+            success "NuGet package was published successfully"
+        else
+            failure "NuGet package was not found on the server (HTTP $response)"
+
+            # Try to get package list for debugging
+            echo "Search results for 'TestProject':"
+            curl -s "http://localhost:5001/v3/search?q=TestProject"
+        fi
+
+    - name: Clean up test environment
+      shell: bash
+      if: always()
+      run: |
+        # Reset repository to original state
+        git reset --hard $(cat /tmp/original_head)
+
+    - name: Finalize test
+      shell: bash
+      if: always()
+      run: |
+        source ${{ github.workspace }}/tests/test-reporter.sh
+        finalize_test

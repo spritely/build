@@ -1,0 +1,71 @@
+name: Build container action publishes expected container
+description: Test to validate that build container action publishes expected container
+
+runs:
+  using: composite
+  steps:
+    - name: Setup test environment
+      shell: bash
+      run: |
+        # Save initial state
+        git rev-parse HEAD > /tmp/original_head
+
+    - id: version
+      name: Get semantic version
+      uses: spritely/actions.semantic-version/get@v0.3.1
+      with:
+        skipCheckout: true
+        writeSummary: false
+
+    - name: Run container action
+      uses: ./container
+      with:
+        registryHost: localhost:5000
+        registryUsername: testuser
+        registryPassword: testpassword
+        imageNames: localhost:5000/test-image
+        context: ./tests/container-test
+        dockerfile: ./tests/container-test/Dockerfile
+        writeSummary: false
+
+    - name: Initialize test
+      shell: bash
+      run: |
+        source ${{ github.workspace }}/tests/test-reporter.sh
+        initialize_test "build container action publishes expected container" "container-test"
+
+    - name: Assert container was published
+      shell: bash
+      run: |
+        source ${{ github.workspace }}/tests/test-reporter.sh
+        set_test_name "Assert container was published"
+
+        # Verify the container can be pulled
+        docker pull localhost:5000/test-image:${{ steps.version.outputs.version }}
+        if [ $? -ne 0 ]; then
+            failure "Failed to pull container"
+            exit 1
+        fi
+
+        # Verify the container runs
+        output=$(docker run --rm localhost:5000/test-image:${{ steps.version.outputs.version }})
+        if [ "$output" != "Test Container" ]; then
+            failure "Container output does not match expected: $output"
+            exit 1
+        fi
+
+        success "Container runs correctly with expected output"
+
+    - name: Clean up test environment
+      shell: bash
+      if: always()
+      run: |
+        # Reset repository to original state
+        git reset --hard $(cat /tmp/original_head)
+
+    - name: Finalize test
+      shell: bash
+      if: always()
+      run: |
+        source ${{ github.workspace }}/tests/test-reporter.sh
+        finalize_test

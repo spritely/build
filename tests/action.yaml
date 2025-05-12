@@ -1,0 +1,75 @@
+name: Run tests
+description: Sets up, runs each of the workflow tests in the project, and reports test results
+
+runs:
+  using: composite
+  steps:
+    - id: setup-tests
+      name: Setup test container registry
+      shell: bash
+      run: |
+        docker run -d -p 5000:5000 \
+            -v ${{ github.workspace }}/tests/container-registry:/auth \
+            -e REGISTRY_AUTH=htpasswd \
+            -e REGISTRY_AUTH_HTPASSWD_REALM="Registry Realm" \
+            -e REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd \
+            --name registry registry:2
+
+        docker run -d -p 5001:80 \
+            -e ApiKey=fake-token \
+            --name baget loicsharma/baget:0.4.0-preview2
+
+    - name: Create git mock
+      shell: bash
+      run: |
+        mkdir -p /tmp/mock-bin
+
+        # Pass all commands through to real git except for push
+        # to ensure repo is not updated with semantic version
+        cat > /tmp/mock-bin/git <<'EOF'
+        #!/bin/bash
+        if [[ "$*" == *"push"* ]]; then
+          echo "MOCK: Skipping git push"
+          exit 0
+        else
+          # Pass through to real git
+          exec /usr/bin/git "$@"
+        fi
+        EOF
+
+        chmod +x /tmp/mock-bin/git
+
+        # Add to PATH
+        echo "/tmp/mock-bin" >> $GITHUB_PATH
+
+    - name: Run test - container-test
+      uses: ./tests/container-test
+      if: always() && steps.setup-tests.outcome == 'success'
+
+    - name: Run test - dotnet-container-test
+      uses: ./tests/dotnet-container-test
+      if: always() && steps.setup-tests.outcome == 'success'
+
+    - name: Run test - dotnet-package-test
+      uses: ./tests/dotnet-package-test
+      if: always() && steps.setup-tests.outcome == 'success'
+
+    - name: Clean up test environment
+      shell: bash
+      if: always()
+      run: |
+        # Remove mocks
+        rm -rf /tmp/mock-bin
+
+    - name: Add test report title
+      if: always()
+      shell: bash
+      run: echo "# Test Results" >> $GITHUB_STEP_SUMMARY
+
+    - name: Generate test report
+      uses: dorny/test-reporter@v2.0.0
+      if: always()
+      with:
+        name: Test Results
+        path: /tmp/test-results/*.xml
+        reporter: java-junit
