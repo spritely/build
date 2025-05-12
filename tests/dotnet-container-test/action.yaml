@@ -29,7 +29,7 @@ runs:
         dockerfile: ./tests/dotnet-container-test/half-covered/Dockerfile
         unitTestProjects: ./tests/dotnet-container-test/**/*.UnitTests.csproj
         coverageThreshold: 50
-        publishResults: false
+        writeSummary: false
 
     - name: Initialize test
       shell: bash

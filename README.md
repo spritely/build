@@ -17,7 +17,7 @@ This build is designed to support 4 main scenarios:
 
 ### Semantic Versioning Build
 
-To setup a semantic versioning build, add a file called ./.github/workflows/build.yml with content similar to the following:
+To setup a semantic versioning build, add a file called ./.github/workflows/build.yaml with content similar to the following:
 
 ```yaml
 name: Build
@@ -36,18 +36,18 @@ jobs:
     steps:
       - id: version
         name: Get semantic version
-        uses: spritely/actions.semantic-version/get@v0.3.0
+        uses: spritely/actions.semantic-version/get@v0.3.1
 
       - name: Apply semantic version
         if: ${{ steps.version.outputs.branchName == github.event.repository.default_branch }}
-        uses: spritely/actions.semantic-version/apply@v0.3.0
+        uses: spritely/actions.semantic-version/apply@v0.3.1
         with:
           version: ${{ steps.version.outputs.version }}
 ```
 
 ### Build and Publish Container
 
-To setup a container build, add a file called ./.github/workflows/build.yml with content similar to the following:
+To setup a container build, add a file called ./.github/workflows/build.yaml with content similar to the following:
 
 ```yaml
 name: Build and Publish Container
@@ -69,7 +69,7 @@ jobs:
 
     steps:
       - name: Build and publish container
-        uses: spritely/build/container@v0.14
+        uses: spritely/build/container@v0.15
         with:
           registryUsername: ${{ github.actor }}
           registryPassword: ${{ github.token }}
@@ -83,7 +83,7 @@ jobs:
 
 ### Build and Publish .NET Container
 
-To setup a container build, add a file called ./.github/workflows/build.yml with content similar to the following:
+To setup a container build, add a file called ./.github/workflows/build.yaml with content similar to the following:
 
 ```yaml
 name: Build and Publish .NET Container
@@ -106,7 +106,7 @@ jobs:
 
     steps:
       - name: Build and publish .NET container
-        uses: spritely/build/dotnet-container@v0.14
+        uses: spritely/build/dotnet-container@v0.15
         with:
           registryUsername: ${{ github.actor }}
           registryPassword: ${{ github.token }}
@@ -119,7 +119,7 @@ jobs:
 
 ### Build and Publish .NET Package
 
-To setup a NuGet package build, add a file called ./.github/workflows/build.yml with content similar to the following:
+To setup a NuGet package build, add a file called ./.github/workflows/build.yaml with content similar to the following:
 
 ```yaml
 name: Build and Publish .NET Package
@@ -144,7 +144,7 @@ jobs:
 
     steps:
       - name: Build and publish dotnet package
-        uses: spritely/build/dotnet-package@v0.14
+        uses: spritely/build/dotnet-package@v0.15
         with:
           registryUsername: ${{ github.actor }}
           registryPassword: ${{ github.token }}

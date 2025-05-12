@@ -30,7 +30,7 @@ runs:
         registryHost: localhost:5000
         registryUsername: testuser
         registryPassword: testpassword
-        publishResults: false
+        writeSummary: false
 
     - name: Initialize test
       shell: bash

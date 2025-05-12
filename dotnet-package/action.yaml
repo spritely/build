@@ -35,8 +35,8 @@ inputs:
     description: The host of the container registry to push to. Defaults to ghcr.io
     required: false
     default: ghcr.io
-  publishResults:
-    description: Whether to publish results to the GitHub summary. Defaults to true. Set to 'false' to disable publishing.
+  writeSummary:
+    description: Whether to write a summary to GitHub. Defaults to true.
     required: false
     default: "true"
 
@@ -47,7 +47,7 @@ runs:
       name: Get semantic version
       uses: spritely/actions.semantic-version/get@v0.3.1
       with:
-        writeSummary: ${{ inputs.publishResults }}
+        writeSummary: ${{ inputs.writeSummary }}
 
     - name: Unit test with code coverage
       uses: spritely/actions.test-dotnet@v0.1.1
@@ -59,7 +59,7 @@ runs:
         registryUsername: ${{ inputs.registryUsername }}
         registryPassword: ${{ inputs.registryPassword }}
         registryHost: ${{ inputs.registryHost }}
-        publishResults: ${{ inputs.publishResults }}
+        writeSummary: ${{ inputs.writeSummary }}
 
     - name: Build and publish nuget package
       uses: spritely/actions.publish-nuget@v0.1.1
