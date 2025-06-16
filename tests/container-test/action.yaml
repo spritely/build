@@ -10,6 +10,11 @@ runs:
         # Save initial state
         git rev-parse HEAD > /tmp/original_head
 
+        # Save the list of tags and their commits
+        git tag --list | while read tag; do
+            echo "$tag $(git rev-list -n 1 "$tag")"
+        done > /tmp/original_tags
+
     - id: version
       name: Get semantic version
       uses: spritely/actions.semantic-version/get@v0.3.1
@@ -61,25 +66,15 @@ runs:
       if: always()
       run: |
         # Reset repository to original state
-        original_head=$(cat /tmp/original_head)
+        git reset --hard $(cat /tmp/original_head)
 
-        # Find and delete tags pointing to commits created after original head
+        # Delete any tags not in the original list
         git tag | while read tag; do
-            if [ ! -z "$tag" ]; then
-                tag_commit=$(git rev-list -n 1 "$tag" 2>/dev/null || echo "")
-                if [ ! -z "$tag_commit" ]; then
-                    # Check if tag points to a commit that came after original_head
-                    if ! git merge-base --is-ancestor "$tag_commit" "$original_head" 2>/dev/null; then
-                        echo "Deleting tag created during test: $tag"
-                        git tag -d "$tag" 2>/dev/null || true
-                    fi
-                fi
+            if ! grep -q "^$tag " /tmp/original_tags; then
+                echo "Deleting extra tag: $tag"
+                git tag -d "$tag" 2>/dev/null || true
             fi
         done
-
-        # Reset and clean
-        git reset --hard "$original_head"
-        git clean -fd
 
     - name: Finalize test
       shell: bash
