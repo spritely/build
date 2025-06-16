@@ -44,13 +44,20 @@ runs:
         source ${{ github.workspace }}/tests/test-reporter.sh
         set_test_name "Assert package was published"
 
+        search_response=$(curl -s "http://localhost:5001/v3/search?q=TestProject")
+        actual_version=$(echo "$search_response" | jq -r '.data[0].version')
+        expected_version="${{ steps.version.outputs.version }}"
+
+        echo "Expected version: $expected_version"
+        echo "Actual published version: $actual_version"
+
         # Query the NuGet server API to check if the package exists
         response=$(curl -s "http://localhost:5001/v3/registration/testproject/${{ steps.version.outputs.version }}.json" -o /dev/null -w "%{http_code}")
 
         if [ "$response" -eq 200 ]; then
-            success "NuGet package was published successfully"
+            success "NuGet package ${{ steps.version.outputs.version }} was published successfully"
         else
-            failure "NuGet package was not found on the server (HTTP $response)"
+            failure "NuGet package ${{ steps.version.outputs.version }} was not found on the server (HTTP $response)"
 
             # Try to get package list for debugging
             echo "Search results for 'TestProject':"
