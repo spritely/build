@@ -61,7 +61,25 @@ runs:
       if: always()
       run: |
         # Reset repository to original state
-        git reset --hard $(cat /tmp/original_head)
+        original_head=$(cat /tmp/original_head)
+
+        # Find and delete tags pointing to commits created after original head
+        git tag | while read tag; do
+            if [ ! -z "$tag" ]; then
+                tag_commit=$(git rev-list -n 1 "$tag" 2>/dev/null || echo "")
+                if [ ! -z "$tag_commit" ]; then
+                    # Check if tag points to a commit that came after original_head
+                    if ! git merge-base --is-ancestor "$tag_commit" "$original_head" 2>/dev/null; then
+                        echo "Deleting tag created during test: $tag"
+                        git tag -d "$tag" 2>/dev/null || true
+                    fi
+                fi
+            fi
+        done
+
+        # Reset and clean
+        git reset --hard "$original_head"
+        git clean -fd
 
     - name: Finalize test
       shell: bash

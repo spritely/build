@@ -3,7 +3,7 @@ updates:
   - package-ecosystem: github-actions
     directories:
       - /
-      - /*
+      - "**/*"
     schedule:
       interval: daily
     groups:
