@@ -153,3 +153,4 @@ jobs:
           nugetAuthToken: ${{ github.token }}
           unitTestProjects: "**/*.Tests.csproj" # defaults to "**/*.UnitTests.csproj"
 ```
+
