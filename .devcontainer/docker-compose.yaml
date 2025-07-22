@@ -1,7 +1,7 @@
 services:
   build-dev:
     container_name: build-dev
-    image: docker.io/spritelydev/dotnet8-devcontainer:0.3.1
+    image: docker.io/spritelydev/dotnet8-devcontainer:0.3.2
     command: /bin/sh -c "sleep infinity"
     volumes:
       - ../:/src
