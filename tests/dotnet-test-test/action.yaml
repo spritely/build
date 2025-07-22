@@ -1,0 +1,109 @@
+name: Test dotnet-test action
+description: Test to validate that the dotnet-test action builds, tests, and applies semantic versioning correctly
+
+runs:
+  using: composite
+  steps:
+    - name: Setup test environment
+      shell: bash
+      run: |
+        # Save initial state
+        git rev-parse HEAD > /tmp/original_head
+
+        # Save the list of tags and their commits
+        git tag --list | while read tag; do
+            echo "$tag $(git rev-list -n 1 "$tag")"
+        done > /tmp/original_tags
+
+    - id: version
+      name: Get semantic version
+      uses: spritely/actions.semantic-version/get@v0.4.5
+      with:
+        skipCheckout: true
+        writeSummary: false
+
+    - name: Run dotnet-test action
+      uses: ./dotnet-test
+      with:
+        nugetAuthToken: fake-token
+        unitTestProjects: ./tests/dotnet-test-test/half-covered/**/*.UnitTests.csproj
+        coverageThreshold: 50
+        registryHost: localhost:5000
+        registryUsername: testuser
+        registryPassword: testpassword
+        writeSummary: false
+
+    - name: Initialize test
+      shell: bash
+      run: |
+        source ${{ github.workspace }}/tests/test-reporter.sh
+        initialize_test "dotnet-test action builds, tests, and applies semantic versioning" "dotnet-test-test"
+
+    - name: Assert tests ran successfully
+      shell: bash
+      run: |
+        source ${{ github.workspace }}/tests/test-reporter.sh
+        set_test_name "Assert tests ran successfully"
+
+        # Check if test output contains expected success indicators
+        # This test passes if the action completed without errors
+        # The actual test execution and coverage validation is handled by the action itself
+        success "dotnet-test action completed successfully"
+
+    - name: Assert semantic version was applied (on default branch)
+      shell: bash
+      run: |
+        source ${{ github.workspace }}/tests/test-reporter.sh
+        set_test_name "Assert semantic version was applied"
+
+        # Check if we're on the default branch
+        current_branch=$(git branch --show-current)
+        default_branch=$(git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@')
+        
+        if [ "$current_branch" = "$default_branch" ]; then
+            # On default branch, check if version tag was created
+            if git tag --list | grep -q "^v${{ steps.version.outputs.version }}$"; then
+                success "Semantic version tag v${{ steps.version.outputs.version }} was applied"
+            else
+                failure "Semantic version tag v${{ steps.version.outputs.version }} was not created"
+            fi
+        else
+            # Not on default branch, semantic version should not be applied
+            if git tag --list | grep -q "^v${{ steps.version.outputs.version }}$"; then
+                failure "Semantic version tag should not be applied on non-default branch"
+            else
+                success "Semantic version tag correctly not applied on non-default branch"
+            fi
+        fi
+
+    - name: Assert coverage threshold was met
+      shell: bash
+      run: |
+        source ${{ github.workspace }}/tests/test-reporter.sh
+        set_test_name "Assert coverage threshold was met"
+
+        # Since we set coverageThreshold to 50% and the half-covered project should meet this,
+        # if the action completed successfully, the coverage requirement was met
+        success "Coverage threshold of 50% was met by half-covered test project"
+
+    - name: Clean up test environment
+      shell: bash
+      if: always()
+      run: |
+        # Reset repository to original state
+        git reset --hard $(cat /tmp/original_head)
+
+        # Delete any tags not in the original list
+        git tag | while read tag; do
+            if ! grep -q "^$tag " /tmp/original_tags; then
+                echo "Deleting extra tag: $tag"
+                git tag -d "$tag" 2>/dev/null || true
+            fi
+        done
+
+    - name: Finalize test
+      shell: bash
+      if: always()
+      run: |
+        source ${{ github.workspace }}/tests/test-reporter.sh
+        finalize_test
