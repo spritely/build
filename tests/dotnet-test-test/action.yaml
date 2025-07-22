@@ -26,7 +26,7 @@ runs:
       uses: ./dotnet-test
       with:
         nugetAuthToken: fake-token
-        unitTestProjects: ./tests/dotnet-test-test/half-covered/**/*.UnitTests.csproj
+        unitTestProjects: ./tests/sample-projects/half-covered/**/*.UnitTests.csproj
         coverageThreshold: 50
         registryHost: localhost:5000
         registryUsername: testuser
@@ -85,6 +85,32 @@ runs:
         # Since we set coverageThreshold to 50% and the half-covered project should meet this,
         # if the action completed successfully, the coverage requirement was met
         success "Coverage threshold of 50% was met by half-covered test project"
+
+    - name: Test coverage threshold enforcement (negative test)
+      id: high-threshold-test
+      uses: ./dotnet-test
+      continue-on-error: true
+      with:
+        nugetAuthToken: fake-token
+        unitTestProjects: ./tests/sample-projects/half-covered/**/*.UnitTests.csproj
+        coverageThreshold: 70
+        registryHost: localhost:5000
+        registryUsername: testuser
+        registryPassword: testpassword
+        writeSummary: false
+
+    - name: Assert coverage threshold enforcement worked
+      shell: bash
+      run: |
+        source ${{ github.workspace }}/tests/test-reporter.sh
+        set_test_name "Assert coverage threshold enforcement with 70% threshold"
+
+        # Check if the previous step failed as expected
+        if [ "${{ steps.high-threshold-test.outcome }}" = "failure" ]; then
+            success "dotnet-test action correctly failed with 70% coverage threshold (half-covered project has ~50% coverage)"
+        else
+            failure "dotnet-test action should have failed with 70% coverage threshold, but outcome was: ${{ steps.high-threshold-test.outcome }}"
+        fi
 
     - name: Clean up test environment
       shell: bash
