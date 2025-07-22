@@ -50,7 +50,7 @@ runs:
         writeSummary: ${{ inputs.writeSummary }}
 
     - name: Unit test with code coverage
-      uses: spritely/actions.test-dotnet@v0.2.4
+      uses: spritely/actions.test-dotnet@v0.2.5
       with:
         nugetAuthToken: ${{ inputs.nugetAuthToken }}
         coverageThreshold: ${{ inputs.coverageThreshold }}
@@ -62,7 +62,7 @@ runs:
         writeSummary: ${{ inputs.writeSummary }}
 
     - name: Build and publish container
-      uses: spritely/actions.publish-container@v0.1.12
+      uses: spritely/actions.publish-container@v0.1.13
       with:
         # Container publishing credentials
         registryUsername: ${{ inputs.registryUsername }}
