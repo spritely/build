@@ -50,32 +50,6 @@ runs:
         # The actual test execution and coverage validation is handled by the action itself
         success "dotnet-test action completed successfully"
 
-    - name: Assert semantic version was applied (on default branch)
-      shell: bash
-      run: |
-        source ${{ github.workspace }}/tests/test-reporter.sh
-        set_test_name "Assert semantic version was applied"
-
-        # Check if we're on the default branch
-        current_branch=$(git branch --show-current)
-        default_branch=$(git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@')
-        
-        if [ "$current_branch" = "$default_branch" ]; then
-            # On default branch, check if version tag was created
-            if git tag --list | grep -q "^v${{ steps.version.outputs.version }}$"; then
-                success "Semantic version tag v${{ steps.version.outputs.version }} was applied"
-            else
-                failure "Semantic version tag v${{ steps.version.outputs.version }} was not created"
-            fi
-        else
-            # Not on default branch, semantic version should not be applied
-            if git tag --list | grep -q "^v${{ steps.version.outputs.version }}$"; then
-                failure "Semantic version tag should not be applied on non-default branch"
-            else
-                success "Semantic version tag correctly not applied on non-default branch"
-            fi
-        fi
-
     - name: Assert coverage threshold was met
       shell: bash
       run: |
@@ -110,6 +84,32 @@ runs:
             success "dotnet-test action correctly failed with 70% coverage threshold (half-covered project has 50% coverage)"
         else
             failure "dotnet-test action should have failed with 70% coverage threshold, but outcome was: ${{ steps.high-threshold-test.outcome }}"
+        fi
+    
+    - name: Assert semantic version was applied (on default branch)
+      shell: bash
+      run: |
+        source ${{ github.workspace }}/tests/test-reporter.sh
+        set_test_name "Assert semantic version was applied"
+
+        # Check if we're on the default branch
+        current_branch=$(git branch --show-current)
+        default_branch=$(git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@')
+        
+        if [ "$current_branch" = "$default_branch" ]; then
+            # On default branch, check if version tag was created
+            if git tag --list | grep -q "^v${{ steps.version.outputs.version }}$"; then
+                success "Semantic version tag v${{ steps.version.outputs.version }} was applied"
+            else
+                failure "Semantic version tag v${{ steps.version.outputs.version }} was not created"
+            fi
+        else
+            # Not on default branch, semantic version should not be applied
+            if git tag --list | grep -q "^v${{ steps.version.outputs.version }}$"; then
+                failure "Semantic version tag should not be applied on non-default branch"
+            else
+                success "Semantic version tag correctly not applied on non-default branch"
+            fi
         fi
 
     - name: Clean up test environment
