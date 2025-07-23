@@ -37,7 +37,17 @@ runs:
       shell: bash
       run: |
         source ${{ github.workspace }}/tests/test-reporter.sh
+        
+        # Debug: Check if test-reporter.sh functions are available
+        echo "DEBUG: Initializing test with parameters:"
+        echo "  Test name: 'dotnet-test action builds, tests, and applies semantic versioning'"
+        echo "  Test class: 'dotnet-test-test'"
+        
         initialize_test "dotnet-test action builds, tests, and applies semantic versioning" "dotnet-test-test"
+        
+        # Debug: Verify test files were created
+        echo "DEBUG: Test results directory contents:"
+        ls -la /tmp/test-results/ || echo "Test results directory not found"
 
     - name: Assert tests ran successfully
       shell: bash
@@ -107,7 +117,7 @@ runs:
 
         # Check if the previous step failed as expected
         if [ "${{ steps.high-threshold-test.outcome }}" = "failure" ]; then
-            success "dotnet-test action correctly failed with 70% coverage threshold (half-covered project has ~50% coverage)"
+            success "dotnet-test action correctly failed with 70% coverage threshold (half-covered project has 50% coverage)"
         else
             failure "dotnet-test action should have failed with 70% coverage threshold, but outcome was: ${{ steps.high-threshold-test.outcome }}"
         fi
