@@ -37,17 +37,7 @@ runs:
       shell: bash
       run: |
         source ${{ github.workspace }}/tests/test-reporter.sh
-        
-        # Debug: Check if test-reporter.sh functions are available
-        echo "DEBUG: Initializing test with parameters:"
-        echo "  Test name: 'dotnet-test action builds, tests, and applies semantic versioning'"
-        echo "  Test class: 'dotnet-test-test'"
-        
         initialize_test "dotnet-test action builds, tests, and applies semantic versioning" "dotnet-test-test"
-        
-        # Debug: Verify test files were created
-        echo "DEBUG: Test results directory contents:"
-        ls -la /tmp/test-results/ || echo "Test results directory not found"
 
     - name: Assert tests ran successfully
       shell: bash

@@ -19,4 +19,9 @@ public class Program
     {
         Console.WriteLine("Hello from shared test project");
     }
+
+    public static string Covered(string input)
+    {
+        return input;
+    }
 }
