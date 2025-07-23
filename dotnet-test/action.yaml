@@ -1,0 +1,57 @@
+name: Build and test dotnet package
+description: Runs build, tests, and checks code coverage, including applying a semantic version.
+
+inputs:
+  nugetAuthToken:
+    description: The NuGet authentication token to use when accessing private packages.
+    required: true
+  registryUsername:
+    description: The username to use to authenticate with the container registry.
+    required: true
+  registryPassword:
+    description: The token to use to authenticate with the container registry.
+    required: true
+  unitTestProjects:
+    # It is important to only pass 'Unit' test projects since the build won't be deployed yet and thus these tests cannot depend on anything in the environment to run
+    description: The path to all unit tests projects to run. Defaults to **/*.UnitTests.csproj
+    required: false
+    default: "**/*.UnitTests.csproj"
+  coverageThreshold:
+    description: The minimum code coverage percentage required for the build to pass. Defaults to 90
+    required: false
+    default: "90"
+  registryHost:
+    description: The host of the container registry to access private containers. Defaults to ghcr.io
+    required: false
+    default: ghcr.io
+  writeSummary:
+    description: Whether to write a summary to GitHub. Defaults to true.
+    required: false
+    default: "true"
+
+runs:
+  using: composite
+  steps:
+    - id: version
+      name: Get semantic version
+      uses: spritely/actions.semantic-version/get@v0.4.5
+      with:
+        writeSummary: ${{ inputs.writeSummary }}
+
+    - name: Unit test with code coverage
+      uses: spritely/actions.test-dotnet@v0.2.4
+      with:
+        nugetAuthToken: ${{ inputs.nugetAuthToken }}
+        coverageThreshold: ${{ inputs.coverageThreshold }}
+        unitTestProjects: ${{ inputs.unitTestProjects }}
+        # To access private devcontainers
+        registryUsername: ${{ inputs.registryUsername }}
+        registryPassword: ${{ inputs.registryPassword }}
+        registryHost: ${{ inputs.registryHost }}
+        writeSummary: ${{ inputs.writeSummary }}
+
+    - name: Apply semantic version
+      if: ${{ steps.version.outputs.branchName == github.event.repository.default_branch }}
+      uses: spritely/actions.semantic-version/apply@v0.4.5
+      with:
+        version: ${{ steps.version.outputs.version }}
