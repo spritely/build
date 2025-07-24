@@ -357,5 +357,4 @@ runs:
         AZURE_CLIENT_ID: ${{ steps.configure.outputs.azureClientId }}
         AZURE_CLIENT_SECRET: ${{ steps.configure.outputs.azureClientSecret }}
         KUBECONFIG: ${{ github.workspace }}/config/kubeConfig
-        NUGET_USER: ${{ github.actor }}
         NUGET_TOKEN: ${{ inputs.nugetAuthToken }}
