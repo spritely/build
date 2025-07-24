@@ -334,7 +334,7 @@ runs:
       with:
         command: ${{ inputs.command }}
         stack-name: organization/${{ inputs.projectName }}/${{ steps.configure.outputs.environment }}
-        work-dir: {{ inputs.projectFolder }}
+        work-dir: ${{ inputs.projectFolder }}
         config-map: ${{ steps.configure.outputs.configMap }}
         pulumi-version: ${{ inputs.pulumiVersion }}
         refresh: ${{ steps.configure.outputs.pulumiRefresh }}
