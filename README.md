@@ -36,11 +36,11 @@ jobs:
     steps:
       - id: version
         name: Get semantic version
-        uses: spritely/actions.semantic-version/get@v0.3.1
+        uses: spritely/actions.semantic-version/get@v0.4.6
 
       - name: Apply semantic version
         if: ${{ steps.version.outputs.branchName == github.event.repository.default_branch }}
-        uses: spritely/actions.semantic-version/apply@v0.3.1
+        uses: spritely/actions.semantic-version/apply@v0.4.6
         with:
           version: ${{ steps.version.outputs.version }}
 ```
@@ -69,7 +69,7 @@ jobs:
 
     steps:
       - name: Build and publish container
-        uses: spritely/build/container@v0.15
+        uses: spritely/build/container@v0.20.0
         with:
           registryUsername: ${{ github.actor }}
           registryPassword: ${{ github.token }}
@@ -106,7 +106,7 @@ jobs:
 
     steps:
       - name: Build and publish .NET container
-        uses: spritely/build/dotnet-container@v0.15
+        uses: spritely/build/dotnet-container@v0.20.0
         with:
           registryUsername: ${{ github.actor }}
           registryPassword: ${{ github.token }}
@@ -144,7 +144,7 @@ jobs:
 
     steps:
       - name: Build and publish dotnet package
-        uses: spritely/build/dotnet-package@v0.15
+        uses: spritely/build/dotnet-package@v0.20.0
         with:
           registryUsername: ${{ github.actor }}
           registryPassword: ${{ github.token }}
@@ -154,3 +154,35 @@ jobs:
           unitTestProjects: "**/*.Tests.csproj" # defaults to "**/*.UnitTests.csproj"
 ```
 
+### Build and Test .NET Project
+
+To setup a project with a simple build and test, add a file called ./.github/workflows/build.yaml with content similar to the following:
+
+```yaml
+name: Build and Test .NET Project
+
+on: [push, workflow_dispatch]
+
+# Permissions required for dotnet-test-cover to report test results,
+# for dotnet-test to be able to do automatic semantic version tagging
+permissions:
+    actions: read
+    checks: write
+    contents: write
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Build and test dotnet project
+        uses: spritely/build/dotnet-test@v0.20.0
+        with:
+          registryUsername: ${{ github.actor }}
+          registryPassword: ${{ github.token }}
+          projectFile: MyProject.csproj
+          projectDirectory: MyProject
+          nugetAuthToken: ${{ github.token }}
+          unitTestProjects: "**/*.Tests.csproj" # defaults to "**/*.UnitTests.csproj"
+```
