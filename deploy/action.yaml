@@ -9,7 +9,7 @@ inputs:
     description: The name of the pulumi project to deploy.
     required: false
   projectFolder:
-    description: The relative path from workingDirectory where the project files (and pulumi.yaml) can be found. Defaults to root folder.
+    description: The relative path from root where the project files (and pulumi.yaml) can be found. Defaults to root folder.
     required: false
     default: .
   dynamicConfigValues:
@@ -43,12 +43,8 @@ inputs:
     description: A map of branch names to environment names.
     required: false
     default: |
-      master=prod
+      main=prod
       develop=dev
-  workingDirectory:
-    description: The directory to run the git commands in. Defaults to ./src/
-    required: false
-    default: ./src/
   environmentNameMaxLength:
     description: Maximum length for environment name. It will be truncated if necessary. Use -1 for no truncation.
     required: false
@@ -56,7 +52,7 @@ inputs:
   pulumiVersion:
     description: The version of pulumi to use.
     required: false
-    default: 3.142.0
+    default: 3.185.0
 
 runs:
   using: composite
@@ -70,13 +66,10 @@ runs:
     - id: setup-dotnet
       name: Setup dotnet
       uses: actions/setup-dotnet@v4
-      with:
-        global-json-file: ${{ inputs.workingDirectory }}/global.json
 
     - id: stack
       name: Select stack
       shell: bash
-      working-directory: ${{ inputs.workingDirectory }}
       run: |
         branch_environment_map=$(cat << EOF
         ${{ inputs.branchEnvironmentMap }}
@@ -119,7 +112,6 @@ runs:
     - id: configure
       name: Read deployment settings
       shell: bash
-      working-directory: ${{ inputs.workingDirectory }}
       run: |
         branch_environment_map=$(cat << EOF
         ${{ inputs.branchEnvironmentMap }}
@@ -342,7 +334,7 @@ runs:
       with:
         command: ${{ inputs.command }}
         stack-name: organization/${{ inputs.projectName }}/${{ steps.configure.outputs.environment }}
-        work-dir: ${{ inputs.workingDirectory }}/${{ inputs.projectFolder }}
+        work-dir: {{ inputs.projectFolder }}
         config-map: ${{ steps.configure.outputs.configMap }}
         pulumi-version: ${{ inputs.pulumiVersion }}
         refresh: ${{ steps.configure.outputs.pulumiRefresh }}
