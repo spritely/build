@@ -8,12 +8,13 @@ For the list of available build agents on GitHub see: https://docs.github.com/en
 
 ## GitHub Usage
 
-This build is designed to support 4 main scenarios:
+This build is designed to support 5 main scenarios:
 
 - [Semantic Versioning Build](#semantic-versioning-build)
 - [Build and Publish Container](#build-and-publish-container)
 - [Build and Publish .NET Container](#build-and-publish-net-container)
 - [Build and Publish .NET Package](#build-and-publish-net-package)
+- [Build and Test .Net Package](#build-and-test-net-project)
 
 ### Semantic Versioning Build
 
