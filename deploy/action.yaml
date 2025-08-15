@@ -52,7 +52,8 @@ inputs:
   pulumiVersion:
     description: The version of pulumi to use.
     required: false
-    default: 3.185.0
+    # To find a new version check this page: https://www.pulumi.com/docs/install/versions/
+    default: 3.189.0
 
 runs:
   using: composite
@@ -169,7 +170,7 @@ runs:
         echo environment=$environment >> $GITHUB_OUTPUT
         echo Environment: $environment >> $GITHUB_STEP_SUMMARY
 
-        # Output variables named with pascalFormat convention
+        # Output variables named with camelCase convention
         pulumiRefresh=true
         pulumiUpsert=true
         pulumiRemove=false
@@ -196,7 +197,6 @@ runs:
         source ${{ github.workspace }}/config/deployment.env
 
         # Mask secrets
-        echo "::add-mask::$configPassphrase"
         echo "::add-mask::$azureStorageAccountKey"
         echo "::add-mask::$azureClientSecret"
 
@@ -215,7 +215,6 @@ runs:
         echo azureTenantId=$azureTenantId >> $GITHUB_OUTPUT
         echo azureClientId=$azureClientId >> $GITHUB_OUTPUT
 
-        echo "configPassphrase=$configPassphrase" >> $GITHUB_OUTPUT
         echo "azureStorageAccountKey=$azureStorageAccountKey" >> $GITHUB_OUTPUT
         echo "azureClientSecret=$azureClientSecret" >> $GITHUB_OUTPUT
 
@@ -224,7 +223,7 @@ runs:
         bootstrapStackName=${{ steps.stack.outputs.bootstrapStackName }}
         projectName="${{ inputs.projectName }}"
 
-        secret_variables=("configPassphrase" "azureStorageAccountKey" "azureClientSecret")
+        secret_variables=("azureStorageAccountKey" "azureClientSecret")
 
         # Utility functions for creating json content
         add_value() {
@@ -254,7 +253,7 @@ runs:
           value=${!variable_name}
 
           # Regex comparison checks for an exact match in a space separated list
-          # Example: Find " configPassphrase " in " configPassphrase azureStorageAccountKey azureClientSecret "
+          # Example: Find " azureStorageAccountKey " in " azureStorageAccountKey azureClientSecret "
           if [[ " ${secret_variables[@]} " =~ " ${variable_name} " ]]; then
             echo "Setting configMap.$projectName:$key=[secret]"
             config_entries["$key"]="$(add_secret "$key" "$value")"
@@ -346,7 +345,6 @@ runs:
         cloud-url: ${{ steps.configure.outputs.cloudUrl }}
         secrets-provider: ${{ steps.configure.outputs.secretsProvider }}
       env:
-        PULUMI_CONFIG_PASSPHRASE: ${{ steps.configure.outputs.configPassphrase }}
         AZURE_STORAGE_ACCOUNT: ${{ steps.configure.outputs.azureStorageAccount }}
         AZURE_STORAGE_KEY: ${{ steps.configure.outputs.azureStorageAccountKey }}
         ARM_SUBSCRIPTION_ID: ${{ steps.configure.outputs.azureSubscriptionId }}
