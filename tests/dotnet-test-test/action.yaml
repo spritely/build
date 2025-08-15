@@ -17,7 +17,7 @@ runs:
 
     - id: version
       name: Get semantic version
-      uses: spritely/actions.semantic-version/get@v0.4.7
+      uses: spritely/actions.semantic-version/get@v0.5.0
       with:
         skipCheckout: true
         writeSummary: false
@@ -26,6 +26,8 @@ runs:
       uses: ./dotnet-test
       with:
         nugetAuthToken: fake-token
+        projectFile: TestProject.csproj
+        projectDirectory: ./tests/sample-projects/half-covered/TestProject
         unitTestProjects: ./tests/sample-projects/half-covered/**/*.UnitTests.csproj
         coverageThreshold: 50
         registryHost: localhost:5000
@@ -66,6 +68,8 @@ runs:
       continue-on-error: true
       with:
         nugetAuthToken: fake-token
+        projectFile: TestProject.csproj
+        projectDirectory: ./tests/sample-projects/half-covered/TestProject
         unitTestProjects: ./tests/sample-projects/half-covered/**/*.UnitTests.csproj
         coverageThreshold: 70
         registryHost: localhost:5000

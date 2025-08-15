@@ -14,6 +14,13 @@ inputs:
   imageNames:
     description: The names of the images to tag and publish.
     required: true
+  projectFile:
+    description: The project file to package such as MyProject.csproj. Do not include the path here, use projectDirectory instead.
+    required: true
+  projectDirectory:
+    description: The directory containing the project to be packaged. Defaults to ./
+    required: false
+    default: ./
   context:
     description: The context to use when building. Defaults to ./
     required: false
@@ -45,14 +52,15 @@ runs:
   steps:
     - id: version
       name: Get semantic version
-      uses: spritely/actions.semantic-version/get@v0.4.7
+      uses: spritely/actions.semantic-version/get@v0.5.0
       with:
         writeSummary: ${{ inputs.writeSummary }}
 
     - name: Unit test with code coverage
-      uses: spritely/actions.test-dotnet@v0.2.8
+      uses: spritely/actions.test-dotnet@v0.3.0
       with:
         nugetAuthToken: ${{ inputs.nugetAuthToken }}
+        projectFile: ${{ inputs.projectDirectory }}/${{ inputs.projectFile }}
         coverageThreshold: ${{ inputs.coverageThreshold }}
         unitTestProjects: ${{ inputs.unitTestProjects }}
         # To access private devcontainers
@@ -62,7 +70,7 @@ runs:
         writeSummary: ${{ inputs.writeSummary }}
 
     - name: Build and publish container
-      uses: spritely/actions.publish-container@v0.1.14
+      uses: spritely/actions.publish-container@v0.1.16
       with:
         # Container publishing credentials
         registryUsername: ${{ inputs.registryUsername }}
@@ -79,6 +87,6 @@ runs:
 
     - name: Apply semantic version
       if: ${{ steps.version.outputs.branchName == github.event.repository.default_branch }}
-      uses: spritely/actions.semantic-version/apply@v0.4.7
+      uses: spritely/actions.semantic-version/apply@v0.5.0
       with:
         version: ${{ steps.version.outputs.version }}

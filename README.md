@@ -37,11 +37,11 @@ jobs:
     steps:
       - id: version
         name: Get semantic version
-        uses: spritely/actions.semantic-version/get@v0.4.6
+        uses: spritely/actions.semantic-version/get@v0.5.0
 
       - name: Apply semantic version
         if: ${{ steps.version.outputs.branchName == github.event.repository.default_branch }}
-        uses: spritely/actions.semantic-version/apply@v0.4.6
+        uses: spritely/actions.semantic-version/apply@v0.5.0
         with:
           version: ${{ steps.version.outputs.version }}
 ```
@@ -70,7 +70,7 @@ jobs:
 
     steps:
       - name: Build and publish container
-        uses: spritely/build/container@v0.20.0
+        uses: spritely/build/container@v0.21.0
         with:
           registryUsername: ${{ github.actor }}
           registryPassword: ${{ github.token }}
@@ -107,7 +107,7 @@ jobs:
 
     steps:
       - name: Build and publish .NET container
-        uses: spritely/build/dotnet-container@v0.20.0
+        uses: spritely/build/dotnet-container@v0.21.0
         with:
           registryUsername: ${{ github.actor }}
           registryPassword: ${{ github.token }}
@@ -145,7 +145,7 @@ jobs:
 
     steps:
       - name: Build and publish dotnet package
-        uses: spritely/build/dotnet-package@v0.20.0
+        uses: spritely/build/dotnet-package@v0.21.0
         with:
           registryUsername: ${{ github.actor }}
           registryPassword: ${{ github.token }}
@@ -178,7 +178,7 @@ jobs:
 
     steps:
       - name: Build and test dotnet project
-        uses: spritely/build/dotnet-test@v0.20.0
+        uses: spritely/build/dotnet-test@v0.21.0
         with:
           registryUsername: ${{ github.actor }}
           registryPassword: ${{ github.token }}
