@@ -328,6 +328,23 @@ runs:
         echo "::add-mask::$configMap"
         echo "configMap=$configMap" >> $GITHUB_OUTPUT
 
+    - name: Azure CLI Login
+      uses: azure/login@v2
+      with:
+        creds: |
+          {
+            "clientId": "${{ steps.configure.outputs.azureClientId }}",
+            "clientSecret": "${{ steps.configure.outputs.azureClientSecret }}",
+            "tenantId": "${{ steps.configure.outputs.azureTenantId }}",
+            "subscriptionId": "${{ steps.configure.outputs.azureSubscriptionId }}"
+          }
+
+    - name: Test Key Vault Access
+      shell: bash
+      run: |
+        az keyvault key show --vault-name pulumi-cd07833c --name pulumi || echo "Key show failed"
+        echo "test" | az keyvault key encrypt --vault-name pulumi-cd07833c --name pulumi --algorithm RSA-OAEP-256 --value - || echo "Encrypt failed"
+
     - name: Deploy
       uses: pulumi/actions@v6
       with:
