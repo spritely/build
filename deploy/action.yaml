@@ -339,18 +339,6 @@ runs:
             "subscriptionId": "${{ steps.configure.outputs.azureSubscriptionId }}"
           }
 
-    - name: Test Key Vault WrapKey
-      shell: bash
-      run: |
-        ACCESS_TOKEN=$(az account get-access-token --resource https://vault.azure.net --query accessToken -o tsv)
-        RANDOM_KEY=$(openssl rand -base64 32)  # Generate a 256-bit key (base64)
-        echo "Testing wrapKey with key: $RANDOM_KEY"
-        curl -X POST \
-          -H "Authorization: Bearer $ACCESS_TOKEN" \
-          -H "Content-Type: application/json" \
-          --data "{\"alg\": \"RSA-OAEP-256\", \"value\": \"$RANDOM_KEY\"}" \
-          https://pulumi-cd07833c.vault.azure.net/keys/pulumi/wrapkey?api-version=7.4 || echo "WrapKey failed"
-
     - name: Deploy
       uses: pulumi/actions@v6
       with:
@@ -368,7 +356,6 @@ runs:
         cloud-url: ${{ steps.configure.outputs.cloudUrl }}
         secrets-provider: ${{ steps.configure.outputs.secretsProvider }}
       env:
-        AZURE_KEYVAULT_AUTH_VIA_CLI: true
         PULUMI_DEBUG_COMMANDS: true
         AZURE_SDK_GO_LOGGING: all
         AZURE_STORAGE_ACCOUNT: ${{ steps.configure.outputs.azureStorageAccount }}
@@ -377,8 +364,5 @@ runs:
         ARM_TENANT_ID: ${{ steps.configure.outputs.azureTenantId }}
         ARM_CLIENT_ID: ${{ steps.configure.outputs.azureClientId }}
         ARM_CLIENT_SECRET: ${{ steps.configure.outputs.azureClientSecret }}
-        AZURE_TENANT_ID: ${{ steps.configure.outputs.azureTenantId }}
-        AZURE_CLIENT_ID: ${{ steps.configure.outputs.azureClientId }}
-        AZURE_CLIENT_SECRET: ${{ steps.configure.outputs.azureClientSecret }}
         KUBECONFIG: ${{ github.workspace }}/config/kubeConfig
         NUGET_TOKEN: ${{ inputs.nugetAuthToken }}
