@@ -53,7 +53,7 @@ inputs:
     description: The version of pulumi to use.
     required: false
     # To find a new version check this page: https://www.pulumi.com/docs/install/versions/
-    default: 3.189.0
+    default: 3.193.0
 
 runs:
   using: composite
@@ -223,7 +223,7 @@ runs:
         bootstrapStackName=${{ steps.stack.outputs.bootstrapStackName }}
         projectName="${{ inputs.projectName }}"
 
-        secret_variables=("azureStorageAccountKey" "azureClientSecret")
+        secret_variables=("azureStorageAccountKey" "azureClientSecret" "gitSshPrivateKey" "gitHttpsAccessToken")
 
         # Utility functions for creating json content
         add_value() {
