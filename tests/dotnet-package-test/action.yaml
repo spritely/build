@@ -21,7 +21,7 @@ runs:
         fi
 
         # Copy test NuGet.Config to root for the package action
-        cp "${{ github.workspace }}/tests/sample-projects/half-covered/TestProject/NuGet.Config" "${{ github.workspace }}/NuGet.Config"
+        cp "${{ github.workspace }}/tests/sample-projects/half-covered/TestProject/NuGet.Config" "${{ github.workspace }}/nuget.config"
 
     - name: Debug NuGet Config
       shell: bash
@@ -82,7 +82,7 @@ runs:
       if: always()
       run: |
         # Restore NuGet.Config
-        rm -f "${{ github.workspace }}/NuGet.Config"
+        rm -f "${{ github.workspace }}/nuget.config"
         if [ -f "${{ github.workspace }}/NuGet.Config.bak" ]; then
             mv "${{ github.workspace }}/NuGet.Config.bak" "${{ github.workspace }}/NuGet.Config"
         fi
