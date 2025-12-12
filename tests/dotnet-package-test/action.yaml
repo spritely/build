@@ -15,13 +15,13 @@ runs:
             echo "$tag $(git rev-list -n 1 "$tag")"
         done > /tmp/original_tags
 
-        # Back up existing NuGet.config if it exists
-        if [ -f "${{ github.workspace }}/NuGet.config" ]; then
-            mv "${{ github.workspace }}/NuGet.config" "${{ github.workspace }}/NuGet.config.bak"
+        # Back up existing NuGet.Config if it exists
+        if [ -f "${{ github.workspace }}/NuGet.Config" ]; then
+            mv "${{ github.workspace }}/NuGet.Config" "${{ github.workspace }}/NuGet.Config.bak"
         fi
 
-        # Copy test NuGet.config to root for the package action
-        cp "${{ github.workspace }}/tests/sample-projects/half-covered/TestProject/NuGet.config" "${{ github.workspace }}/NuGet.config"
+        # Copy test NuGet.Config to root for the package action
+        cp "${{ github.workspace }}/tests/sample-projects/half-covered/TestProject/NuGet.Config" "${{ github.workspace }}/NuGet.Config"
 
     - id: version
       name: Get semantic version
@@ -74,10 +74,10 @@ runs:
       shell: bash
       if: always()
       run: |
-        # Restore NuGet.config
-        rm -f "${{ github.workspace }}/NuGet.config"
-        if [ -f "${{ github.workspace }}/NuGet.config.bak" ]; then
-            mv "${{ github.workspace }}/NuGet.config.bak" "${{ github.workspace }}/NuGet.config"
+        # Restore NuGet.Config
+        rm -f "${{ github.workspace }}/NuGet.Config"
+        if [ -f "${{ github.workspace }}/NuGet.Config.bak" ]; then
+            mv "${{ github.workspace }}/NuGet.Config.bak" "${{ github.workspace }}/NuGet.Config"
         fi
 
         # Reset repository to original state
