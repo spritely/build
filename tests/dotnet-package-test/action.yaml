@@ -107,6 +107,18 @@ runs:
     #       echo "Removed temporary directory: ${{ steps.prepare.outputs.publishNuGetDirectory }}"
     #     fi
 
+    - name: Unit test with code coverage
+      uses: spritely/actions.test-dotnet@v0.3.5
+      with:
+        nugetAuthToken: fake-token
+        coverageThreshold: 50
+        projectFile: ./tests/sample-projects/half-covered/TestProject/TestProject.csproj
+        unitTestProjects: ./tests/sample-projects/half-covered/**/*.UnitTests.csproj
+        registryUsername: testuser
+        registryPassword: testpassword
+        registryHost: localhost:5000
+        writeSummary: false
+
     - name: Build and publish nuget package
       uses: spritely/actions.publish-nuget@v0.2.12
       with:
