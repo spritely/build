@@ -45,6 +45,35 @@ runs:
         username: testuser
         password: testpassword
 
+    - id: prepare
+      name: Prepare devcontainer environment
+      shell: bash
+      run: |
+        mkdir -p ./.devcontainer
+        touch ./.devcontainer/.env
+
+        # Need to copy the build script files to a path that will work inside the devcontainer
+        # Find a path that will not conflict with user files
+        base_dir=".github-actions-publish-nuget"
+        temp_dir="$base_dir"
+        counter=1
+
+        # Find a unique directory name
+        while [ -e "$temp_dir" ]; do
+          temp_dir="${base_dir}-${counter}"
+          counter=$((counter + 1))
+        done
+
+        # Create the directory and copy the script
+        mkdir -p "$temp_dir"
+        cp "${{ github.workspace }}/tests/dotnet-package-test/publish-nuget.sh" "$temp_dir/publish-nuget.sh"
+        chmod +x "$temp_dir/publish-nuget.sh"
+
+        echo "Using temporary directory: $temp_dir"
+
+        # Set output variables
+        echo "publishNuGetDirectory=$temp_dir" >> $GITHUB_OUTPUT
+
     - name: Debug DevContainer Files
       uses: devcontainers/ci@v0.3
       with:
@@ -55,20 +84,42 @@ runs:
           ls -la /src/.github-actions-publish-nuget-debug
         push: never
 
-    - name: Run dotnet-package action
-      uses: ./dotnet-package
+    - name: Publish NuGet package
+      if: github.ref_type == 'branch'
+      uses: devcontainers/ci@v0.3
       with:
-        # Use the named source from NuGet.Config
-        packageRepository: TestRepository
-        nugetAuthToken: fake-token
-        projectDirectory: ./tests/sample-projects/half-covered/TestProject
-        projectFile: TestProject.csproj
-        unitTestProjects: ./tests/sample-projects/half-covered/**/*.UnitTests.csproj
-        coverageThreshold: 50
-        registryHost: localhost:5000
-        registryUsername: testuser
-        registryPassword: testpassword
-        writeSummary: false
+        runCmd: |
+          source "/src/${{ steps.prepare.outputs.publishNuGetDirectory }}/publish-nuget.sh"
+        push: never
+        env: |
+          PROJECT_FILE=./tests/sample-projects/half-covered/TestProject/TestProject.csproj
+          VERSION=${{ steps.version.outputs.version }}
+          PACKAGE_REPOSITORY=TestRepository
+          NUGET_TOKEN=fake-token
+
+    - name: Remove temporary files
+      if: always()
+      shell: bash
+      run: |
+        if [ -d "${{ steps.prepare.outputs.publishNuGetDirectory }}" ]; then
+          rm -rf "${{ steps.prepare.outputs.publishNuGetDirectory }}"
+          echo "Removed temporary directory: ${{ steps.prepare.outputs.publishNuGetDirectory }}"
+        fi
+
+    # - name: Run dotnet-package action
+    #   uses: ./dotnet-package
+    #   with:
+    #     # Use the named source from NuGet.Config
+    #     packageRepository: TestRepository
+    #     nugetAuthToken: fake-token
+    #     projectDirectory: ./tests/sample-projects/half-covered/TestProject
+    #     projectFile: TestProject.csproj
+    #     unitTestProjects: ./tests/sample-projects/half-covered/**/*.UnitTests.csproj
+    #     coverageThreshold: 50
+    #     registryHost: localhost:5000
+    #     registryUsername: testuser
+    #     registryPassword: testpassword
+    #     writeSummary: false
 
     - name: Initialize test
       shell: bash
