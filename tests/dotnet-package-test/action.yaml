@@ -30,12 +30,12 @@ runs:
         ls -la "${{ github.workspace }}/NuGet.Config"
         cat "${{ github.workspace }}/NuGet.Config"
 
-    - id: version
-      name: Get semantic version
-      uses: spritely/actions.semantic-version/get@v0.5.2
-      with:
-        skipCheckout: true
-        writeSummary: false
+    # - id: version
+    #   name: Get semantic version
+    #   uses: spritely/actions.semantic-version/get@v0.5.2
+    #   with:
+    #     skipCheckout: true
+    #     writeSummary: false
 
     # Works:
     # - name: Login to GitHub container registry
@@ -107,44 +107,45 @@ runs:
     #       echo "Removed temporary directory: ${{ steps.prepare.outputs.publishNuGetDirectory }}"
     #     fi
 
-    - name: Unit test with code coverage
-      uses: spritely/actions.test-dotnet@v0.3.5
-      with:
-        nugetAuthToken: fake-token
-        coverageThreshold: 50
-        projectFile: ./tests/sample-projects/half-covered/TestProject/TestProject.csproj
-        unitTestProjects: ./tests/sample-projects/half-covered/**/*.UnitTests.csproj
-        registryUsername: testuser
-        registryPassword: testpassword
-        registryHost: localhost:5000
-        writeSummary: false
-
-    - name: Build and publish nuget package
-      uses: spritely/actions.publish-nuget@v0.2.12
-      with:
-        packageRepository: TestRepository
-        nugetAuthToken: fake-token
-        projectFile: ./tests/sample-projects/half-covered/TestProject/TestProject.csproj
-        version: ${{ steps.version.outputs.version }}
-        registryUsername: testuser
-        registryPassword: testpassword
-        registryHost: localhost:5000
-
-    # Broken
-    # - name: Run dotnet-package action
-    #   uses: ./dotnet-package
+    # Works too:
+    # - name: Unit test with code coverage
+    #   uses: spritely/actions.test-dotnet@v0.3.5
     #   with:
-    #     # Use the named source from NuGet.Config
-    #     packageRepository: TestRepository
     #     nugetAuthToken: fake-token
-    #     projectDirectory: ./tests/sample-projects/half-covered/TestProject
-    #     projectFile: TestProject.csproj
-    #     unitTestProjects: ./tests/sample-projects/half-covered/**/*.UnitTests.csproj
     #     coverageThreshold: 50
-    #     registryHost: localhost:5000
+    #     projectFile: ./tests/sample-projects/half-covered/TestProject/TestProject.csproj
+    #     unitTestProjects: ./tests/sample-projects/half-covered/**/*.UnitTests.csproj
     #     registryUsername: testuser
     #     registryPassword: testpassword
+    #     registryHost: localhost:5000
     #     writeSummary: false
+
+    # - name: Build and publish nuget package
+    #   uses: spritely/actions.publish-nuget@v0.2.12
+    #   with:
+    #     packageRepository: TestRepository
+    #     nugetAuthToken: fake-token
+    #     projectFile: ./tests/sample-projects/half-covered/TestProject/TestProject.csproj
+    #     version: ${{ steps.version.outputs.version }}
+    #     registryUsername: testuser
+    #     registryPassword: testpassword
+    #     registryHost: localhost:5000
+
+    # Broken
+    - name: Run dotnet-package action
+      uses: ./dotnet-package
+      with:
+        # Use the named source from NuGet.Config
+        packageRepository: TestRepository
+        nugetAuthToken: fake-token
+        projectDirectory: ./tests/sample-projects/half-covered/TestProject
+        projectFile: TestProject.csproj
+        unitTestProjects: ./tests/sample-projects/half-covered/**/*.UnitTests.csproj
+        coverageThreshold: 50
+        registryHost: localhost:5000
+        registryUsername: testuser
+        registryPassword: testpassword
+        writeSummary: false
 
     - name: Initialize test
       shell: bash
