@@ -33,8 +33,8 @@ runs:
     - name: Run dotnet-package action
       uses: ./dotnet-package
       with:
-        # Connect to host machine via ip for docker default gateway
-        packageRepository: http://172.17.0.1:5001/v3/index.json
+        # Use the named source from NuGet.Config
+        packageRepository: TestRepository
         nugetAuthToken: fake-token
         projectDirectory: ./tests/sample-projects/half-covered/TestProject
         projectFile: TestProject.csproj
