@@ -80,8 +80,8 @@ runs:
         runCmd: |
           echo "=== Files in /src ==="
           ls -la /src
-          echo "=== Files in /src/.github-actions-publish-nuget-debug ==="
-          ls -la /src/.github-actions-publish-nuget-debug
+          echo "=== Files in /src/.github-actions-publish-nuget ==="
+          ls -la /src/.github-actions-publish-nuget
         push: never
 
     - name: Publish NuGet package
