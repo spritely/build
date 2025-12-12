@@ -37,75 +37,88 @@ runs:
         skipCheckout: true
         writeSummary: false
 
-    - name: Login to GitHub container registry
-      if: inputs.registryHost != '' && inputs.registryUsername != '' && inputs.registryPassword != ''
-      uses: docker/login-action@v3
+    # Works:
+    # - name: Login to GitHub container registry
+    #   if: inputs.registryHost != '' && inputs.registryUsername != '' && inputs.registryPassword != ''
+    #   uses: docker/login-action@v3
+    #   with:
+    #     registry: localhost:5000
+    #     username: testuser
+    #     password: testpassword
+
+    # - id: prepare
+    #   name: Prepare devcontainer environment
+    #   shell: bash
+    #   run: |
+    #     mkdir -p ./.devcontainer
+    #     touch ./.devcontainer/.env
+
+    #     # Need to copy the build script files to a path that will work inside the devcontainer
+    #     # Find a path that will not conflict with user files
+    #     base_dir=".github-actions-publish-nuget"
+    #     temp_dir="$base_dir"
+    #     counter=1
+
+    #     # Find a unique directory name
+    #     while [ -e "$temp_dir" ]; do
+    #       temp_dir="${base_dir}-${counter}"
+    #       counter=$((counter + 1))
+    #     done
+
+    #     # Create the directory and copy the script
+    #     mkdir -p "$temp_dir"
+    #     cp "${{ github.workspace }}/tests/dotnet-package-test/publish-nuget.sh" "$temp_dir/publish-nuget.sh"
+    #     chmod +x "$temp_dir/publish-nuget.sh"
+
+    #     echo "Using temporary directory: $temp_dir"
+
+    #     # Set output variables
+    #     echo "publishNuGetDirectory=$temp_dir" >> $GITHUB_OUTPUT
+
+    # - name: Debug DevContainer Files
+    #   uses: devcontainers/ci@v0.3
+    #   with:
+    #     runCmd: |
+    #       echo "=== Files in /src ==="
+    #       ls -la /src
+    #       echo "=== Files in /src/.github-actions-publish-nuget ==="
+    #       ls -la /src/.github-actions-publish-nuget
+    #     push: never
+
+    # - name: Publish NuGet package
+    #   if: github.ref_type == 'branch'
+    #   uses: devcontainers/ci@v0.3
+    #   with:
+    #     runCmd: |
+    #       source "/src/${{ steps.prepare.outputs.publishNuGetDirectory }}/publish-nuget.sh"
+    #     push: never
+    #     env: |
+    #       PROJECT_FILE=./tests/sample-projects/half-covered/TestProject/TestProject.csproj
+    #       VERSION=${{ steps.version.outputs.version }}
+    #       PACKAGE_REPOSITORY=TestRepository
+    #       NUGET_TOKEN=fake-token
+
+    # - name: Remove temporary files
+    #   if: always()
+    #   shell: bash
+    #   run: |
+    #     if [ -d "${{ steps.prepare.outputs.publishNuGetDirectory }}" ]; then
+    #       rm -rf "${{ steps.prepare.outputs.publishNuGetDirectory }}"
+    #       echo "Removed temporary directory: ${{ steps.prepare.outputs.publishNuGetDirectory }}"
+    #     fi
+
+    - name: Build and publish nuget package
+      uses: spritely/actions.publish-nuget@v0.2.12
       with:
-        registry: localhost:5000
-        username: testuser
-        password: testpassword
+        packageRepository: TestRepository
+        nugetAuthToken: fake-token
+        projectFile: ./tests/sample-projects/half-covered/TestProject/TestProject.csproj
+        version: ${{ steps.version.outputs.version }}
+        registryUsername: testuser
+        registryPassword: testpassword
+        registryHost: localhost:5000
 
-    - id: prepare
-      name: Prepare devcontainer environment
-      shell: bash
-      run: |
-        mkdir -p ./.devcontainer
-        touch ./.devcontainer/.env
-
-        # Need to copy the build script files to a path that will work inside the devcontainer
-        # Find a path that will not conflict with user files
-        base_dir=".github-actions-publish-nuget"
-        temp_dir="$base_dir"
-        counter=1
-
-        # Find a unique directory name
-        while [ -e "$temp_dir" ]; do
-          temp_dir="${base_dir}-${counter}"
-          counter=$((counter + 1))
-        done
-
-        # Create the directory and copy the script
-        mkdir -p "$temp_dir"
-        cp "${{ github.workspace }}/tests/dotnet-package-test/publish-nuget.sh" "$temp_dir/publish-nuget.sh"
-        chmod +x "$temp_dir/publish-nuget.sh"
-
-        echo "Using temporary directory: $temp_dir"
-
-        # Set output variables
-        echo "publishNuGetDirectory=$temp_dir" >> $GITHUB_OUTPUT
-
-    - name: Debug DevContainer Files
-      uses: devcontainers/ci@v0.3
-      with:
-        runCmd: |
-          echo "=== Files in /src ==="
-          ls -la /src
-          echo "=== Files in /src/.github-actions-publish-nuget ==="
-          ls -la /src/.github-actions-publish-nuget
-        push: never
-
-    - name: Publish NuGet package
-      if: github.ref_type == 'branch'
-      uses: devcontainers/ci@v0.3
-      with:
-        runCmd: |
-          source "/src/${{ steps.prepare.outputs.publishNuGetDirectory }}/publish-nuget.sh"
-        push: never
-        env: |
-          PROJECT_FILE=./tests/sample-projects/half-covered/TestProject/TestProject.csproj
-          VERSION=${{ steps.version.outputs.version }}
-          PACKAGE_REPOSITORY=TestRepository
-          NUGET_TOKEN=fake-token
-
-    - name: Remove temporary files
-      if: always()
-      shell: bash
-      run: |
-        if [ -d "${{ steps.prepare.outputs.publishNuGetDirectory }}" ]; then
-          rm -rf "${{ steps.prepare.outputs.publishNuGetDirectory }}"
-          echo "Removed temporary directory: ${{ steps.prepare.outputs.publishNuGetDirectory }}"
-        fi
-
+    # Broken
     # - name: Run dotnet-package action
     #   uses: ./dotnet-package
     #   with:
