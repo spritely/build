@@ -15,6 +15,14 @@ runs:
             echo "$tag $(git rev-list -n 1 "$tag")"
         done > /tmp/original_tags
 
+        # Back up existing NuGet.config if it exists
+        if [ -f "${{ github.workspace }}/NuGet.config" ]; then
+            mv "${{ github.workspace }}/NuGet.config" "${{ github.workspace }}/NuGet.config.bak"
+        fi
+
+        # Copy test NuGet.config to root for the package action
+        cp "${{ github.workspace }}/tests/sample-projects/half-covered/TestProject/NuGet.config" "${{ github.workspace }}/NuGet.config"
+
     - id: version
       name: Get semantic version
       uses: spritely/actions.semantic-version/get@v0.5.2
@@ -66,6 +74,12 @@ runs:
       shell: bash
       if: always()
       run: |
+        # Restore NuGet.config
+        rm -f "${{ github.workspace }}/NuGet.config"
+        if [ -f "${{ github.workspace }}/NuGet.config.bak" ]; then
+            mv "${{ github.workspace }}/NuGet.config.bak" "${{ github.workspace }}/NuGet.config"
+        fi
+
         # Reset repository to original state
         git reset --hard $(cat /tmp/original_head)
 
