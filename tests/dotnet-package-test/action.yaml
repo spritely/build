@@ -23,6 +23,13 @@ runs:
         # Copy test NuGet.Config to root for the package action
         cp "${{ github.workspace }}/tests/sample-projects/half-covered/TestProject/NuGet.Config" "${{ github.workspace }}/NuGet.Config"
 
+    - name: Debug NuGet Config
+      shell: bash
+      run: |
+        echo "Current directory: $(pwd)"
+        ls -la "${{ github.workspace }}/NuGet.Config"
+        cat "${{ github.workspace }}/NuGet.Config"
+
     - id: version
       name: Get semantic version
       uses: spritely/actions.semantic-version/get@v0.5.2
