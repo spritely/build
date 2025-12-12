@@ -54,6 +54,10 @@ runs:
       uses: ./tests/dotnet-package-test
       if: always() && steps.setup-tests.outcome == 'success'
 
+    - name: Run test - dotnet-test-test
+      uses: ./tests/dotnet-test-test
+      if: always() && steps.setup-tests.outcome == 'success'
+
     - name: Clean up test environment
       shell: bash
       if: always()
