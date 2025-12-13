@@ -66,8 +66,9 @@ runs:
       shell: bash
       if: always()
       run: |
-        # Clean up coverage results to prevent git checkout failures in next test
+        # Clean up coverage results and build outputs to prevent git checkout failures in next test
         sudo rm -rf ${{ github.workspace }}/covered-test-results || true
+        find ${{ github.workspace }}/tests/sample-projects -type d \( -name "bin" -o -name "obj" \) -exec sudo rm -rf {} + 2>/dev/null || true
 
     - name: Test coverage threshold enforcement (negative test)
       id: high-threshold-test
@@ -127,8 +128,9 @@ runs:
       shell: bash
       if: always()
       run: |
-        # Clean up coverage results
+        # Clean up coverage results and build outputs
         sudo rm -rf ${{ github.workspace }}/covered-test-results || true
+        find ${{ github.workspace }}/tests/sample-projects -type d \( -name "bin" -o -name "obj" \) -exec sudo rm -rf {} + 2>/dev/null || true
 
         # Reset repository to original state
         git reset --hard $(cat /tmp/original_head)
