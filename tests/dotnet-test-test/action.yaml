@@ -62,6 +62,13 @@ runs:
         # if the action completed successfully, the coverage requirement was met
         success "Coverage threshold of 50% was met by half-covered test project"
 
+    - name: Test clean up
+      shell: bash
+      if: always()
+      run: |
+        # Clean up coverage results to prevent git checkout failures in next test
+        rm -rf ${{ github.workspace }}/covered-test-results || true
+
     - name: Test coverage threshold enforcement (negative test)
       id: high-threshold-test
       uses: ./dotnet-test
@@ -120,20 +127,8 @@ runs:
       shell: bash
       if: always()
       run: |
-        # Clean up build outputs and coverage results with permission fixes
-        # These files have restrictive permissions that prevent git clean from working
-
-        # Clean up coverage results directory
-        if [ -d "${{ github.workspace }}/covered-test-results" ]; then
-            chmod -R +w "${{ github.workspace }}/covered-test-results" 2>/dev/null || true
-            rm -rf "${{ github.workspace }}/covered-test-results"
-        fi
-
-        # Clean up any bin/obj directories created by dotnet builds
-        find ${{ github.workspace }}/tests/sample-projects -type d \( -name "bin" -o -name "obj" \) 2>/dev/null | while read dir; do
-            chmod -R +w "$dir" 2>/dev/null || true
-            rm -rf "$dir"
-        done
+        # Clean up coverage results
+        rm -rf ${{ github.workspace }}/covered-test-results || true
 
         # Reset repository to original state
         git reset --hard $(cat /tmp/original_head)
