@@ -34,7 +34,7 @@ runs:
       name: Get semantic version
       uses: spritely/actions.semantic-version/get@v0.5.2
       with:
-        #skipCheckout: true
+        skipCheckout: true
         writeSummary: false
 
     - name: Login to GitHub container registry
