@@ -37,6 +37,18 @@ runs:
         #skipCheckout: true
         writeSummary: false
 
+    # Setup NuGet source globally in devcontainer
+    - name: Setup global NuGet source
+      uses: devcontainers/ci@v0.3
+      with:
+        runCmd: |
+          echo "Setting up TestRepository NuGet source globally..."
+          dotnet nuget add source http://localhost:5001/v3/index.json \
+            --name TestRepository \
+            || echo "Source may already exist, continuing..."
+          dotnet nuget list source
+        push: never
+
     # Works:
     # - name: Login to GitHub container registry
     #   if: inputs.registryHost != '' && inputs.registryUsername != '' && inputs.registryPassword != ''
