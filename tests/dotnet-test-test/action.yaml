@@ -67,7 +67,7 @@ runs:
       if: always()
       run: |
         # Clean up coverage results to prevent git checkout failures in next test
-        rm -rf ${{ github.workspace }}/covered-test-results || true
+        sudo rm -rf ${{ github.workspace }}/covered-test-results || true
 
     - name: Test coverage threshold enforcement (negative test)
       id: high-threshold-test
@@ -128,7 +128,7 @@ runs:
       if: always()
       run: |
         # Clean up coverage results
-        rm -rf ${{ github.workspace }}/covered-test-results || true
+        sudo rm -rf ${{ github.workspace }}/covered-test-results || true
 
         # Reset repository to original state
         git reset --hard $(cat /tmp/original_head)
