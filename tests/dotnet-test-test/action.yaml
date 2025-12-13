@@ -89,7 +89,7 @@ runs:
         else
             failure "dotnet-test action should have failed with 70% coverage threshold, but outcome was: ${{ steps.high-threshold-test.outcome }}"
         fi
-    
+
     - name: Assert semantic version was applied (on default branch)
       shell: bash
       run: |
@@ -99,7 +99,7 @@ runs:
         # Check if we're on the default branch
         current_branch=$(git branch --show-current)
         default_branch=$(git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@')
-        
+
         if [ "$current_branch" = "$default_branch" ]; then
             # On default branch, check if version tag was created
             if git tag --list | grep -q "^v${{ steps.version.outputs.version }}$"; then
@@ -120,6 +120,21 @@ runs:
       shell: bash
       if: always()
       run: |
+        # Clean up build outputs and coverage results with permission fixes
+        # These files have restrictive permissions that prevent git clean from working
+
+        # Clean up coverage results directory
+        if [ -d "${{ github.workspace }}/covered-test-results" ]; then
+            chmod -R +w "${{ github.workspace }}/covered-test-results" 2>/dev/null || true
+            rm -rf "${{ github.workspace }}/covered-test-results"
+        fi
+
+        # Clean up any bin/obj directories created by dotnet builds
+        find ${{ github.workspace }}/tests/sample-projects -type d \( -name "bin" -o -name "obj" \) 2>/dev/null | while read dir; do
+            chmod -R +w "$dir" 2>/dev/null || true
+            rm -rf "$dir"
+        done
+
         # Reset repository to original state
         git reset --hard $(cat /tmp/original_head)
 
