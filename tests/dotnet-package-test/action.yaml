@@ -22,12 +22,12 @@ runs:
     #     ls -la "${{ github.workspace }}/NuGet.Config"
     #     cat "${{ github.workspace }}/NuGet.Config"
 
-    - id: version
-      name: Get semantic version
-      uses: spritely/actions.semantic-version/get@v0.5.2
-      with:
-        skipCheckout: true
-        writeSummary: false
+    # - id: version
+    #   name: Get semantic version
+    #   uses: spritely/actions.semantic-version/get@v0.5.2
+    #   with:
+    #     skipCheckout: true
+    #     writeSummary: false
 
     # - name: Login to GitHub container registry
     #   if: inputs.registryHost != '' && inputs.registryUsername != '' && inputs.registryPassword != ''
@@ -38,14 +38,14 @@ runs:
     #     password: testpassword
 
     # Setup NuGet source globally in devcontainer
-    - name: Setup global NuGet source
-      uses: devcontainers/ci@v0.3
-      with:
-        runCmd: |
-          dotnet nuget add source http://localhost:5001/v3/index.json --name TestRepository \
-            || echo "Source may already exist, continuing..."
-          dotnet nuget list source
-        push: never
+    # - name: Setup global NuGet source
+    #   uses: devcontainers/ci@v0.3
+    #   with:
+    #     runCmd: |
+    #       dotnet nuget add source http://localhost:5001/v3/index.json --name TestRepository \
+    #         || echo "Source may already exist, continuing..."
+    #       dotnet nuget list source
+    #     push: never
 
     # Works:
     # - name: Login to GitHub container registry
