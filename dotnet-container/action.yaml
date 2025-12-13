@@ -52,12 +52,12 @@ runs:
   steps:
     - id: version
       name: Get semantic version
-      uses: spritely/actions.semantic-version/get@v0.5.2
+      uses: spritely/actions.semantic-version/get@v0.5.6
       with:
         writeSummary: ${{ inputs.writeSummary }}
 
     - name: Unit test with code coverage
-      uses: spritely/actions.test-dotnet@v0.3.5
+      uses: spritely/actions.test-dotnet@v0.4.0
       with:
         nugetAuthToken: ${{ inputs.nugetAuthToken }}
         projectFile: ${{ inputs.projectDirectory }}/${{ inputs.projectFile }}
@@ -70,7 +70,7 @@ runs:
         writeSummary: ${{ inputs.writeSummary }}
 
     - name: Build and publish container
-      uses: spritely/actions.publish-container@v0.1.18
+      uses: spritely/actions.publish-container@v0.1.21
       with:
         # Container publishing credentials
         registryUsername: ${{ inputs.registryUsername }}
@@ -87,6 +87,6 @@ runs:
 
     - name: Apply semantic version
       if: ${{ steps.version.outputs.branchName == github.event.repository.default_branch }}
-      uses: spritely/actions.semantic-version/apply@v0.5.2
+      uses: spritely/actions.semantic-version/apply@v0.5.6
       with:
         version: ${{ steps.version.outputs.version }}
