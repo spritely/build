@@ -37,25 +37,25 @@ runs:
         skipCheckout: true
         writeSummary: false
 
-    - name: Login to GitHub container registry
-      if: inputs.registryHost != '' && inputs.registryUsername != '' && inputs.registryPassword != ''
-      uses: docker/login-action@v3
-      with:
-        registry: localhost:5000
-        username: testuser
-        password: testpassword
-
-    # # Setup NuGet source globally in devcontainer
-    # - name: Setup global NuGet source
-    #   uses: devcontainers/ci@v0.3
+    # - name: Login to GitHub container registry
+    #   if: inputs.registryHost != '' && inputs.registryUsername != '' && inputs.registryPassword != ''
+    #   uses: docker/login-action@v3
     #   with:
-    #     runCmd: |
-    #       echo "Setting up TestRepository NuGet source globally..."
-    #       dotnet nuget add source http://localhost:5001/v3/index.json \
-    #         --name TestRepository \
-    #         || echo "Source may already exist, continuing..."
-    #       dotnet nuget list source
-    #     push: never
+    #     registry: localhost:5000
+    #     username: testuser
+    #     password: testpassword
+
+    # Setup NuGet source globally in devcontainer
+    - name: Setup global NuGet source
+      uses: devcontainers/ci@v0.3
+      with:
+        runCmd: |
+          echo "Setting up TestRepository NuGet source globally..."
+          dotnet nuget add source http://localhost:5001/v3/index.json \
+            --name TestRepository \
+            || echo "Source may already exist, continuing..."
+          dotnet nuget list source
+        push: never
 
     # Works:
     # - name: Login to GitHub container registry
@@ -95,15 +95,15 @@ runs:
     #     # Set output variables
     #     echo "publishNuGetDirectory=$temp_dir" >> $GITHUB_OUTPUT
 
-    - name: Debug DevContainer Files
-      uses: devcontainers/ci@v0.3
-      with:
-        runCmd: |
-          echo "=== Files in /src ==="
-          ls -la /src
-          echo "=== Files in /src/.github-actions-publish-nuget ==="
-          ls -la /src/.github-actions-publish-nuget
-        push: never
+    # - name: Debug DevContainer Files
+    #   uses: devcontainers/ci@v0.3
+    #   with:
+    #     runCmd: |
+    #       echo "=== Files in /src ==="
+    #       ls -la /src
+    #       echo "=== Files in /src/.github-actions-publish-nuget ==="
+    #       ls -la /src/.github-actions-publish-nuget
+    #     push: never
 
     # - name: Publish NuGet package
     #   if: github.ref_type == 'branch'
