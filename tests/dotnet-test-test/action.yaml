@@ -86,11 +86,8 @@ runs:
 
         if [ "$current_branch" = "$default_branch" ]; then
             # On default branch, check if version tag was created
-            echo "Searching for tag matching: v${{ steps.version.outputs.version }}"
-            echo "All git tags before assertion:"
-            git tag --list
             if git tag --list | grep -q "^v${{ steps.version.outputs.version }}$"; then
-                failure "Semantic version tag v${{ steps.version.outputs.version }} was applied - SUCCESS - SUCCESS - SUCCESS"
+                success "Semantic version tag v${{ steps.version.outputs.version }} was applied"
             else
                 failure "Semantic version tag v${{ steps.version.outputs.version }} was not created"
             fi
