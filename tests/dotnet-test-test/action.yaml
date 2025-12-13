@@ -62,6 +62,14 @@ runs:
         # if the action completed successfully, the coverage requirement was met
         success "Coverage threshold of 50% was met by half-covered test project"
 
+    - name: Test clean up
+      shell: bash
+      if: always()
+      run: |
+        # Clean up coverage results and build outputs to prevent git checkout failures in next test
+        sudo rm -rf ${{ github.workspace }}/covered-test-results || true
+        find ${{ github.workspace }}/tests/sample-projects -type d \( -name "bin" -o -name "obj" \) -exec sudo rm -rf {} + 2>/dev/null || true
+
     - name: Test coverage threshold enforcement (negative test)
       id: high-threshold-test
       uses: ./dotnet-test
@@ -89,7 +97,7 @@ runs:
         else
             failure "dotnet-test action should have failed with 70% coverage threshold, but outcome was: ${{ steps.high-threshold-test.outcome }}"
         fi
-    
+
     - name: Assert semantic version was applied (on default branch)
       shell: bash
       run: |
@@ -98,8 +106,8 @@ runs:
 
         # Check if we're on the default branch
         current_branch=$(git branch --show-current)
-        default_branch=$(git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@')
-        
+        default_branch="${{ github.event.repository.default_branch }}"
+
         if [ "$current_branch" = "$default_branch" ]; then
             # On default branch, check if version tag was created
             if git tag --list | grep -q "^v${{ steps.version.outputs.version }}$"; then
@@ -120,6 +128,10 @@ runs:
       shell: bash
       if: always()
       run: |
+        # Clean up coverage results and build outputs
+        sudo rm -rf ${{ github.workspace }}/covered-test-results || true
+        find ${{ github.workspace }}/tests/sample-projects -type d \( -name "bin" -o -name "obj" \) -exec sudo rm -rf {} + 2>/dev/null || true
+
         # Reset repository to original state
         git reset --hard $(cat /tmp/original_head)
 
