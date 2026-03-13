@@ -1,9 +1,9 @@
-FROM mcr.microsoft.com/dotnet/sdk:10.0.102-noble-amd64 AS build
+FROM mcr.microsoft.com/dotnet/sdk:10.0.201-noble-amd64 AS build
 WORKDIR /app
 COPY . .
 RUN dotnet build TestProject
 
-FROM mcr.microsoft.com/dotnet/runtime:10.0.2-noble-amd64
+FROM mcr.microsoft.com/dotnet/runtime:10.0.5-noble-amd64
 WORKDIR /app
 COPY --from=build /app/TestProject/bin/Debug/net10.0 .
 CMD ["dotnet", "TestProject.dll"]
