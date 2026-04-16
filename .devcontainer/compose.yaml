@@ -1,7 +1,7 @@
 services:
   build-dev:
     container_name: build-dev
-    image: docker.io/spritelydev/dotnet10-devcontainer:0.4.16@sha256:608b7c0d4e1260e2ade2a78eb813967693eb98adced597b11e234e0f9554ab7d
+    image: docker.io/spritelydev/dotnet10-devcontainer:0.4.24@sha256:700d53038357908091618f58b37f56f4b37313bdb2aea49ae0ce6f98360d29b5
     privileged: true
     command: /bin/sh -c "sleep infinity"
     volumes:
