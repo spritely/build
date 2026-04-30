@@ -46,7 +46,7 @@ runs:
         writeSummary: ${{ inputs.writeSummary }}
 
     - name: Unit test with code coverage
-      uses: spritely/actions.test-dotnet@062e4a47c875c2d8490aa4987cd5a22a887d86e3 # v0.5.9
+      uses: spritely/actions.test-dotnet@34326271034e1a94ecdb94c232dcfe9a2f550e71 # v0.5.47
       with:
         nugetAuthToken: ${{ inputs.nugetAuthToken }}
         projectFile: ${{ inputs.projectDirectory }}/${{ inputs.projectFile }}
