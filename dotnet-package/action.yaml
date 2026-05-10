@@ -50,7 +50,7 @@ runs:
         writeSummary: ${{ inputs.writeSummary }}
 
     - name: Unit test with code coverage
-      uses: spritely/actions.test-dotnet@309adf538ecc7360103e52d1815859c3851aff01 # v0.5.63
+      uses: spritely/actions.test-dotnet@512690cfa0bf5c65475317469b901e8e8fce6336 # v0.5.65
       with:
         nugetAuthToken: ${{ inputs.nugetAuthToken }}
         coverageThreshold: ${{ inputs.coverageThreshold }}
