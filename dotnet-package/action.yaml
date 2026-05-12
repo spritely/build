@@ -63,7 +63,7 @@ runs:
         writeSummary: ${{ inputs.writeSummary }}
 
     - name: Build and publish nuget package
-      uses: spritely/actions.publish-nuget@deb2279f1740ac979d8e636c4cbffafe47e91910 # v0.4.60
+      uses: spritely/actions.publish-nuget@7c7c000d2ad59236e0972de6c399406c1f894642 # v0.4.63
       with:
         packageRepository: ${{ inputs.packageRepository }}
         nugetAuthToken: ${{ inputs.nugetAuthToken }}
