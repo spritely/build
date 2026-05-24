@@ -32,7 +32,7 @@
     },
     {
       "matchPackageNames": [
-        "spritelydev/dotnet10-devcontainer",
+        "docker.io/spritelydev/dotnet10-devcontainer",
         "spritely/actions.semantic-version",
         "spritely/actions.test-dotnet",
         "spritely/actions.publish-nuget",
