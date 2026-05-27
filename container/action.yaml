@@ -33,12 +33,12 @@ runs:
   steps:
     - id: version
       name: Get semantic version
-      uses: spritely/actions.semantic-version/get@61fb78335d5c5b7fab40d185e773878923cb3fb6 # v0.7.55
+      uses: spritely/actions.semantic-version/get@fd401a5c54587c1c3d042eaafd6537e1bcfba69e # v0.7.56
       with:
         writeSummary: ${{ inputs.writeSummary }}
 
     - name: Build and publish container
-      uses: spritely/actions.publish-container@136ed9132133dcbfb6d8083a19051ecde285bba7 # v0.2.61
+      uses: spritely/actions.publish-container@b453e011734c9a82192bef11ba525d6c2af70a57 # v0.2.62
       with:
         registryUsername: ${{ inputs.registryUsername }}
         registryPassword: ${{ inputs.registryPassword }}
@@ -51,6 +51,6 @@ runs:
 
     - name: Apply semantic version
       if: ${{ steps.version.outputs.branchName == github.event.repository.default_branch }}
-      uses: spritely/actions.semantic-version/apply@61fb78335d5c5b7fab40d185e773878923cb3fb6 # v0.7.55
+      uses: spritely/actions.semantic-version/apply@fd401a5c54587c1c3d042eaafd6537e1bcfba69e # v0.7.56
       with:
         version: ${{ steps.version.outputs.version }}
