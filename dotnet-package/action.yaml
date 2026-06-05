@@ -45,12 +45,12 @@ runs:
   steps:
     - id: version
       name: Get semantic version
-      uses: spritely/actions.semantic-version/get@3c959f9eac278612caf9b56b5fbc0ae5fb55ddca # v0.8.5
+      uses: spritely/actions.semantic-version/get@34bf5cb633f46eb961e88cb2b7428d4f1e47cd07 # v0.8.6
       with:
         writeSummary: ${{ inputs.writeSummary }}
 
     - name: Unit test with code coverage
-      uses: spritely/actions.test-dotnet@90cbfd4577773bcde17c06e39e6f6cec52642327 # v0.5.95
+      uses: spritely/actions.test-dotnet@c0aa6d2046e88707ab9f12aee2ea96b2444791d7 # v0.5.96
       with:
         nugetAuthToken: ${{ inputs.nugetAuthToken }}
         coverageThreshold: ${{ inputs.coverageThreshold }}
@@ -63,7 +63,7 @@ runs:
         writeSummary: ${{ inputs.writeSummary }}
 
     - name: Build and publish nuget package
-      uses: spritely/actions.publish-nuget@3d3d9c96096bb3d499263f0092bc9e8e88d6743a # v0.4.89
+      uses: spritely/actions.publish-nuget@43d3d16e544bbb04340a65ef91da62b2b9a98ec7 # v0.4.90
       with:
         packageRepository: ${{ inputs.packageRepository }}
         nugetAuthToken: ${{ inputs.nugetAuthToken }}
@@ -76,6 +76,6 @@ runs:
 
     - name: Apply semantic version
       if: ${{ steps.version.outputs.branchName == github.event.repository.default_branch }}
-      uses: spritely/actions.semantic-version/apply@3c959f9eac278612caf9b56b5fbc0ae5fb55ddca # v0.8.5
+      uses: spritely/actions.semantic-version/apply@34bf5cb633f46eb961e88cb2b7428d4f1e47cd07 # v0.8.6
       with:
         version: ${{ steps.version.outputs.version }}
