@@ -57,7 +57,7 @@ runs:
         writeSummary: ${{ inputs.writeSummary }}
 
     - name: Unit test with code coverage
-      uses: spritely/actions.test-dotnet@eb280956e3dcf6fce1064c8e87c7333e6ad3fb80 # v0.5.120
+      uses: spritely/actions.test-dotnet@e2f3fd876516f30cbd5e256fcca409f2cdeec177 # v0.5.121
       with:
         nugetAuthToken: ${{ inputs.nugetAuthToken }}
         projectFile: ${{ inputs.projectDirectory }}/${{ inputs.projectFile }}
@@ -70,7 +70,7 @@ runs:
         writeSummary: ${{ inputs.writeSummary }}
 
     - name: Build and publish container
-      uses: spritely/actions.publish-container@462d65f0e94bf9183276b0d7361eef88daae310b # v0.2.94
+      uses: spritely/actions.publish-container@bc75837b55020506b3baa86cd2874b16900bc304 # v0.2.95
       with:
         # Container publishing credentials
         registryUsername: ${{ inputs.registryUsername }}
