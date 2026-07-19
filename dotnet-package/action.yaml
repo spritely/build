@@ -2,13 +2,6 @@ name: Build and publish dotnet package
 description: Runs build, tests, and publishing of a dotnet package to the package registry, including applying a semantic version.
 
 inputs:
-  packageRepository:
-    description: The URL of the NuGet package repository to push to.
-    required: false
-    default: https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
-  nugetAuthToken:
-    description: The NuGet authentication token to use when pushing or pulling packages.
-    required: true
   projectFile:
     description: The project file to package such as MyProject.csproj. Do not include the path here.
     required: true
@@ -18,6 +11,14 @@ inputs:
   registryPassword:
     description: The token to use to authenticate with the container registry.
     required: true
+  githubToken:
+    description: The GitHub token to use when pushing or pulling packages. Defaults to github.token.
+    required: false
+    default: ${{ github.token }}
+  packageRepository:
+    description: The URL of the NuGet package repository to push to.
+    required: false
+    default: https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
   projectDirectory:
     description: The directory containing the project to be packaged. Defaults to ./
     required: false
@@ -50,11 +51,11 @@ runs:
         writeSummary: ${{ inputs.writeSummary }}
 
     - name: Unit test with code coverage
-      uses: spritely/actions.test-dotnet@a74a261eb7122225358b536802960bab69a96c9b # v0.5.125
+      uses: spritely/actions.test-dotnet@490bbad878a5eaaacd14fa0befd6fbb0f7f670e7 # v0.7.0
       with:
-        nugetAuthToken: ${{ inputs.nugetAuthToken }}
-        coverageThreshold: ${{ inputs.coverageThreshold }}
         projectFile: ${{ inputs.projectDirectory }}/${{ inputs.projectFile }}
+        githubToken: ${{ inputs.githubToken }}
+        coverageThreshold: ${{ inputs.coverageThreshold }}
         unitTestProjects: ${{ inputs.unitTestProjects }}
         # To access private devcontainers
         registryUsername: ${{ inputs.registryUsername }}
@@ -63,12 +64,12 @@ runs:
         writeSummary: ${{ inputs.writeSummary }}
 
     - name: Build and publish nuget package
-      uses: spritely/actions.publish-nuget@5f3ed7e546f80df43749790b3a41797489ae73b8 # v0.4.119
+      uses: spritely/actions.publish-nuget@2359e80ddde952b8a1ca6e442440871410424745 # v0.5.0
       with:
-        packageRepository: ${{ inputs.packageRepository }}
-        nugetAuthToken: ${{ inputs.nugetAuthToken }}
         projectFile: ${{ inputs.projectDirectory }}/${{ inputs.projectFile }}
         version: ${{ steps.version.outputs.version }}
+        githubToken: ${{ inputs.githubToken }}
+        packageRepository: ${{ inputs.packageRepository }}
         # To access private devcontainers
         registryUsername: ${{ inputs.registryUsername }}
         registryPassword: ${{ inputs.registryPassword }}

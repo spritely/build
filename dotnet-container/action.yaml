@@ -2,9 +2,6 @@ name: Build and publish dotnet container
 description: Runs build, tests, and publishing of a dotnet container image to the container registry, including applying a semantic version.
 
 inputs:
-  nugetAuthToken:
-    description: The NuGet authentication token to use when pushing or pulling packages.
-    required: true
   registryUsername:
     description: The username to use to authenticate with the container registry.
     required: true
@@ -21,6 +18,10 @@ inputs:
     description: The directory containing the project to be packaged. Defaults to ./
     required: false
     default: ./
+  githubToken:
+    description: The GitHub token to use when pushing or pulling packages. Defaults to github.token.
+    required: false
+    default: ${{ github.token }}
   context:
     description: The context to use when building. Defaults to ./
     required: false
@@ -57,10 +58,10 @@ runs:
         writeSummary: ${{ inputs.writeSummary }}
 
     - name: Unit test with code coverage
-      uses: spritely/actions.test-dotnet@a74a261eb7122225358b536802960bab69a96c9b # v0.5.125
+      uses: spritely/actions.test-dotnet@490bbad878a5eaaacd14fa0befd6fbb0f7f670e7 # v0.7.0
       with:
-        nugetAuthToken: ${{ inputs.nugetAuthToken }}
         projectFile: ${{ inputs.projectDirectory }}/${{ inputs.projectFile }}
+        githubToken: ${{ inputs.githubToken }}
         coverageThreshold: ${{ inputs.coverageThreshold }}
         unitTestProjects: ${{ inputs.unitTestProjects }}
         # To access private devcontainers
@@ -77,8 +78,7 @@ runs:
         registryPassword: ${{ inputs.registryPassword }}
         registryHost: ${{ inputs.registryHost }}
         containerSecrets: |
-          NUGET_USER=${{ github.actor }}
-          NUGET_TOKEN=${{ inputs.nugetAuthToken }}
+          GITHUB_TOKEN=${{ inputs.githubToken }}
         context: ${{ inputs.context }}
         dockerfile: ${{ inputs.dockerfile }}
         imageNames: ${{ inputs.imageNames }}

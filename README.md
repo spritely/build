@@ -114,7 +114,6 @@ jobs:
           # Always prefix all names with the registry host name (an optional parameter that defaults to ghcr.io)
           # Otherwise, the build will attempt to publish to those registries, but will not have signed into them
           imageNames: ghcr.io/my-organization/repository-name
-          nugetAuthToken: ${{ github.token }}
           unitTestProjects: "**/*.Tests.csproj" # defaults to "**/*.UnitTests.csproj"
 ```
 
@@ -151,7 +150,6 @@ jobs:
           registryPassword: ${{ github.token }}
           projectFile: MyProject.csproj
           projectDirectory: MyProject
-          nugetAuthToken: ${{ github.token }}
           unitTestProjects: "**/*.Tests.csproj" # defaults to "**/*.UnitTests.csproj"
 ```
 
@@ -184,6 +182,5 @@ jobs:
           registryPassword: ${{ github.token }}
           projectFile: MyProject.csproj
           projectDirectory: MyProject
-          nugetAuthToken: ${{ github.token }}
           unitTestProjects: "**/*.Tests.csproj" # defaults to "**/*.UnitTests.csproj"
 ```

@@ -35,7 +35,6 @@ runs:
     - name: Run dotnet-test action
       uses: ./dotnet-test
       with:
-        nugetAuthToken: fake-token
         projectFile: TestProject.csproj
         projectDirectory: ./tests/sample-projects/half-covered/TestProject
         unitTestProjects: ./tests/sample-projects/half-covered/**/*.UnitTests.csproj
@@ -113,7 +112,6 @@ runs:
       uses: ./dotnet-test
       continue-on-error: true
       with:
-        nugetAuthToken: fake-token
         projectFile: TestProject.csproj
         projectDirectory: ./tests/sample-projects/half-covered/TestProject
         unitTestProjects: ./tests/sample-projects/half-covered/**/*.UnitTests.csproj
