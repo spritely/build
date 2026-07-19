@@ -35,6 +35,9 @@ runs:
         dockerfile: ./tests/sample-projects/half-covered/Dockerfile
         unitTestProjects: ./tests/sample-projects/half-covered/**/*.UnitTests.csproj
         coverageThreshold: 50
+        # Required: the action defaults to ${{ github.token }} which won't match the
+        # test server's expected token. Must explicitly pass the test token.
+        githubToken: fake-token
         writeSummary: false
 
     - name: Initialize test

@@ -26,6 +26,9 @@ runs:
       uses: ./dotnet-package
       with:
         packageRepository: http://localhost:5001/v3/index.json
+        # Required: the action defaults to ${{ github.token }} which won't match the
+        # BaGet test server's ApiKey. Must explicitly pass the test server's token.
+        githubToken: fake-token
         projectDirectory: ./tests/sample-projects/half-covered/TestProject
         projectFile: TestProject.csproj
         unitTestProjects: ./tests/sample-projects/half-covered/**/*.UnitTests.csproj

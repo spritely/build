@@ -42,6 +42,9 @@ runs:
         registryHost: localhost:5000
         registryUsername: testuser
         registryPassword: testpassword
+        # Required: the action defaults to ${{ github.token }} which won't match the
+        # test server's expected token. Must explicitly pass the test token.
+        githubToken: fake-token
         writeSummary: false
 
     - name: Initialize test
@@ -119,6 +122,9 @@ runs:
         registryHost: localhost:5000
         registryUsername: testuser
         registryPassword: testpassword
+        # Required: the action defaults to ${{ github.token }} which won't match the
+        # test server's expected token. Must explicitly pass the test token.
+        githubToken: fake-token
         writeSummary: false
 
     - name: Assert coverage threshold enforcement worked
