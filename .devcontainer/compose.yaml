@@ -16,3 +16,4 @@ services:
     env_file:
       - path: .env
         required: false
+    network_mode: host
