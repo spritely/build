@@ -47,7 +47,7 @@ runs:
         writeSummary: ${{ inputs.writeSummary }}
 
     - name: Unit test with code coverage
-      uses: spritely/actions.test-dotnet@afc2052954a059ddf699d4b408d0912685c370de # v0.7.11
+      uses: spritely/actions.test-dotnet@604c915c02a9267c2f91f569e338f7b1899b8d3a # v0.7.12
       with:
         projectFile: ${{ inputs.projectDirectory }}/${{ inputs.projectFile }}
         githubToken: ${{ inputs.githubToken }}

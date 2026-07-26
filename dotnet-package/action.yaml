@@ -51,7 +51,7 @@ runs:
         writeSummary: ${{ inputs.writeSummary }}
 
     - name: Unit test with code coverage
-      uses: spritely/actions.test-dotnet@afc2052954a059ddf699d4b408d0912685c370de # v0.7.11
+      uses: spritely/actions.test-dotnet@604c915c02a9267c2f91f569e338f7b1899b8d3a # v0.7.12
       with:
         projectFile: ${{ inputs.projectDirectory }}/${{ inputs.projectFile }}
         githubToken: ${{ inputs.githubToken }}
@@ -64,7 +64,7 @@ runs:
         writeSummary: ${{ inputs.writeSummary }}
 
     - name: Build and publish nuget package
-      uses: spritely/actions.publish-nuget@1ebd039e17043f253a66007c4adf7c3b2127eaf6 # v0.5.12
+      uses: spritely/actions.publish-nuget@c8d08c2dc82d5c477e4de830f0657738120904f2 # v0.5.13
       with:
         projectFile: ${{ inputs.projectDirectory }}/${{ inputs.projectFile }}
         version: ${{ steps.version.outputs.version }}
