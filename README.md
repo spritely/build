@@ -6,6 +6,32 @@ Repository for holding common GitHub actions workflows.
 
 For the list of available build agents on GitHub see: https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners/about-github-hosted-runners
 
+## .NET test requirements
+
+The three .NET scenarios below run unit tests through [Microsoft.Testing.Platform (MTP)](https://learn.microsoft.com/dotnet/core/testing/microsoft-testing-platform-intro). Repositories using them need two things:
+
+1. `"test": { "runner": "Microsoft.Testing.Platform" }` in the repository's `global.json`, which makes `dotnet test` launch the test application and forward its arguments:
+
+```json
+{
+  "sdk": {
+    "version": "10.0.302"
+  },
+  "test": {
+    "runner": "Microsoft.Testing.Platform"
+  }
+}
+```
+
+2. In every unit test project, `<UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>` plus the extensions that provide the coverage and trx options:
+
+```xml
+<PackageReference Include="coverlet.MTP" Version="..." />
+<PackageReference Include="Microsoft.Testing.Extensions.TrxReport" Version="..." />
+```
+
+`coverlet.MTP` requires Microsoft.Testing.Platform 2.x, so test projects need `xunit.v3` 4.x (or MSTest 3.x / NUnit with its MTP adapter). `coverlet.collector`, `Microsoft.NET.Test.Sdk` and `xunit.runner.visualstudio` are no longer used and can be removed.
+
 ## GitHub Usage
 
 This build is designed to support 5 main scenarios:
