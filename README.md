@@ -184,3 +184,5 @@ jobs:
           projectDirectory: MyProject
           unitTestProjects: "**/*.Tests.csproj" # defaults to "**/*.UnitTests.csproj"
 ```
+
+> **Note:** As of version 0.27.0 the .NET test support changed from VSTest to [Microsoft.Testing.Platform (MTP)](https://learn.microsoft.com/dotnet/core/testing/microsoft-testing-platform-intro).
