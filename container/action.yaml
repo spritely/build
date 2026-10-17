@@ -38,7 +38,7 @@ runs:
         writeSummary: ${{ inputs.writeSummary }}
 
     - name: Build and publish container
-      uses: spritely/actions.publish-container@e0084a729a61ac4b3d314354512130ba64ea6e98 # v0.2.134
+      uses: spritely/actions.publish-container@dd6e632d361cda78b4cb6257d4e532b7930e47a1 # v0.2.135
       with:
         registryUsername: ${{ inputs.registryUsername }}
         registryPassword: ${{ inputs.registryPassword }}
