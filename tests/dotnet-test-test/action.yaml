@@ -27,7 +27,7 @@ runs:
 
     - id: version
       name: Get semantic version
-      uses: spritely/actions.semantic-version/get@bfbdb18ce4a62a95199fa2d0da2785927934e24d # v0.8.73
+      uses: spritely/actions.semantic-version/get@bab13cb62ab4f3483459a2cca50ca311c9f431e6 # v0.8.74
       with:
         skipCheckout: true
         writeSummary: false
