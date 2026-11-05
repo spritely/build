@@ -46,12 +46,12 @@ runs:
   steps:
     - id: version
       name: Get semantic version
-      uses: spritely/actions.semantic-version/get@dca56df9b01eb92f2ab536015170ae80c5034270 # v0.8.77
+      uses: spritely/actions.semantic-version/get@ee1437cd42e23b24ac69b9b136c8addf29cdc72a # v0.8.79
       with:
         writeSummary: ${{ inputs.writeSummary }}
 
     - name: Unit test with code coverage
-      uses: spritely/actions.test-dotnet@bfd7b96ca97e01fbd6e850d0eb3d12a5322e2ffd # v0.9.32
+      uses: spritely/actions.test-dotnet@f717167f810640d73bd0f061f70ebe29cd4a2279 # v0.9.34
       with:
         projectFile: ${{ inputs.projectDirectory }}/${{ inputs.projectFile }}
         githubToken: ${{ inputs.githubToken }}
@@ -64,7 +64,7 @@ runs:
         writeSummary: ${{ inputs.writeSummary }}
 
     - name: Build and publish nuget package
-      uses: spritely/actions.publish-nuget@fae5946ef98676d180957eca83935c86ded57862 # v0.6.30
+      uses: spritely/actions.publish-nuget@39d8ffc805c12dfdacfa2e3710cf5602c4ab9dee # v0.6.32
       with:
         projectFile: ${{ inputs.projectDirectory }}/${{ inputs.projectFile }}
         version: ${{ steps.version.outputs.version }}
@@ -77,6 +77,6 @@ runs:
 
     - name: Apply semantic version
       if: ${{ steps.version.outputs.branchName == github.event.repository.default_branch }}
-      uses: spritely/actions.semantic-version/apply@dca56df9b01eb92f2ab536015170ae80c5034270 # v0.8.77
+      uses: spritely/actions.semantic-version/apply@ee1437cd42e23b24ac69b9b136c8addf29cdc72a # v0.8.79
       with:
         version: ${{ steps.version.outputs.version }}
